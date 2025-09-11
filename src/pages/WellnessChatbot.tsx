@@ -2,12 +2,16 @@ import { useState } from "react";
 import { WelcomeScreen } from "@/components/screens/WelcomeScreen";
 import { PrivacyScreen } from "@/components/screens/PrivacyScreen";
 import { ConsentScreen } from "@/components/screens/ConsentScreen";
+import { QuestionsScreen, QuestionResponses } from "@/components/screens/QuestionsScreen";
+import { FeedbackScreen } from "@/components/screens/FeedbackScreen";
 import { useToast } from "@/hooks/use-toast";
 
-type Screen = "welcome" | "privacy" | "consent" | "complete";
+type Screen = "welcome" | "privacy" | "consent" | "questions" | "feedback" | "complete";
 
 export const WellnessChatbot = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
+  const [questionResponses, setQuestionResponses] = useState<QuestionResponses | null>(null);
+  const [additionalFeedback, setAdditionalFeedback] = useState<string | undefined>(undefined);
   const { toast } = useToast();
 
   const handleContinue = () => {
@@ -33,10 +37,24 @@ export const WellnessChatbot = () => {
   };
 
   const handleConsent = () => {
-    setCurrentScreen("complete");
+    setCurrentScreen("questions");
     toast({
       title: "Thank you!",
       description: "Your consent has been recorded. You can now proceed with the wellness assessment.",
+    });
+  };
+
+  const handleQuestionsNext = (responses: QuestionResponses) => {
+    setQuestionResponses(responses);
+    setCurrentScreen("feedback");
+  };
+
+  const handleFeedbackSubmit = (feedback?: string) => {
+    setAdditionalFeedback(feedback);
+    setCurrentScreen("complete");
+    toast({
+      title: "Feedback submitted!",
+      description: "Thank you for sharing your thoughts. Your feedback helps us improve workplace wellness.",
     });
   };
 
@@ -68,6 +86,18 @@ export const WellnessChatbot = () => {
           <ConsentScreen 
             onConsent={handleConsent}
             onDecline={handleDecline}
+          />
+        );
+      case "questions":
+        return (
+          <QuestionsScreen 
+            onNext={handleQuestionsNext}
+          />
+        );
+      case "feedback":
+        return (
+          <FeedbackScreen 
+            onSubmit={handleFeedbackSubmit}
           />
         );
       case "complete":
