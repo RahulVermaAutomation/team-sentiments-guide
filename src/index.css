@@ -138,10 +138,52 @@ All colors MUST be HSL.
     backdrop-filter: blur(10px);
   }
   
+  /* Chat-like conversation styling */
+  .chat-container {
+    @apply min-h-screen bg-gradient-to-br from-background via-background to-secondary/20 flex items-center justify-center p-4;
+  }
+  
+  .bot-message {
+    @apply bg-primary/10 border border-primary/20 rounded-2xl rounded-bl-sm p-6 max-w-md mx-auto;
+    animation: slideInLeft 0.6s ease-out, fadeIn 0.6s ease-out;
+  }
+  
+  .user-response-area {
+    @apply bg-card rounded-2xl rounded-tr-sm p-6 mt-4 border border-border/50 shadow-sm;
+    animation: slideInRight 0.4s ease-out 0.3s both;
+  }
+  
+  .typing-indicator {
+    @apply flex items-center space-x-1 text-primary/60 text-sm;
+  }
+  
+  .typing-dot {
+    @apply w-2 h-2 bg-primary/40 rounded-full;
+    animation: typingPulse 1.4s ease-in-out infinite;
+  }
+  
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  
   /* Screen transitions */
   .screen-transition {
     @apply transition-all duration-500 ease-in-out;
   }
   
-  /* Custom button variants will be handled in the button component */
+  /* Interactive elements */
+  .scale-option {
+    @apply flex flex-col items-center p-3 rounded-xl border-2 border-border/50 hover:border-primary/50 transition-all duration-200 hover:scale-105 cursor-pointer;
+  }
+  
+  .scale-option.selected {
+    @apply border-primary bg-primary/5 shadow-sm;
+  }
+  
+  .yes-no-option {
+    @apply flex-1 p-4 rounded-xl border-2 border-border/50 hover:border-primary/50 transition-all duration-200 hover:scale-[1.02] cursor-pointer text-center font-medium;
+  }
+  
+  .yes-no-option.selected {
+    @apply border-primary bg-primary/5 text-primary shadow-sm;
+  }
 }

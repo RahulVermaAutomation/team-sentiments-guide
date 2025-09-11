@@ -2,15 +2,19 @@ import { useState } from "react";
 import { WelcomeScreen } from "@/components/screens/WelcomeScreen";
 import { PrivacyScreen } from "@/components/screens/PrivacyScreen";
 import { ConsentScreen } from "@/components/screens/ConsentScreen";
-import { QuestionsScreen, QuestionResponses } from "@/components/screens/QuestionsScreen";
+import { ConversationalQuestion } from "@/components/ConversationalQuestion";
 import { FeedbackScreen } from "@/components/screens/FeedbackScreen";
 import { useToast } from "@/hooks/use-toast";
 
-type Screen = "welcome" | "privacy" | "consent" | "questions" | "feedback" | "complete";
+type Screen = "welcome" | "privacy" | "consent" | "question1" | "question2" | "question3" | "feedback" | "complete";
 
 export const WellnessChatbot = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
-  const [questionResponses, setQuestionResponses] = useState<QuestionResponses | null>(null);
+  const [questionResponses, setQuestionResponses] = useState({
+    workSatisfaction: "",
+    personalConcerns: "",
+    growthMetrics: "",
+  });
   const [additionalFeedback, setAdditionalFeedback] = useState<string | undefined>(undefined);
   const { toast } = useToast();
 
@@ -37,15 +41,25 @@ export const WellnessChatbot = () => {
   };
 
   const handleConsent = () => {
-    setCurrentScreen("questions");
+    setCurrentScreen("question1");
     toast({
       title: "Thank you!",
       description: "Your consent has been recorded. You can now proceed with the wellness assessment.",
     });
   };
 
-  const handleQuestionsNext = (responses: QuestionResponses) => {
-    setQuestionResponses(responses);
+  const handleQuestion1Answer = (answer: string) => {
+    setQuestionResponses(prev => ({ ...prev, workSatisfaction: answer }));
+    setCurrentScreen("question2");
+  };
+
+  const handleQuestion2Answer = (answer: string) => {
+    setQuestionResponses(prev => ({ ...prev, personalConcerns: answer }));
+    setCurrentScreen("question3");
+  };
+
+  const handleQuestion3Answer = (answer: string) => {
+    setQuestionResponses(prev => ({ ...prev, growthMetrics: answer }));
     setCurrentScreen("feedback");
   };
 
@@ -88,10 +102,31 @@ export const WellnessChatbot = () => {
             onDecline={handleDecline}
           />
         );
-      case "questions":
+      case "question1":
         return (
-          <QuestionsScreen 
-            onNext={handleQuestionsNext}
+          <ConversationalQuestion
+            emoji="🎯"
+            botMessage="How satisfied are you with your current work and the learning opportunities available to you?"
+            questionType="scale"
+            onAnswer={handleQuestion1Answer}
+          />
+        );
+      case "question2":
+        return (
+          <ConversationalQuestion
+            emoji="💭"
+            botMessage="Do you have any personal concerns that are affecting how you feel at work?"
+            questionType="yesno"
+            onAnswer={handleQuestion2Answer}
+          />
+        );
+      case "question3":
+        return (
+          <ConversationalQuestion
+            emoji="📈"
+            botMessage="How supported do you feel in achieving your career growth and development goals?"
+            questionType="scale"
+            onAnswer={handleQuestion3Answer}
           />
         );
       case "feedback":
@@ -102,15 +137,18 @@ export const WellnessChatbot = () => {
         );
       case "complete":
         return (
-          <div className="min-h-screen bg-background flex items-center justify-center p-4">
-            <div className="wellness-card text-center">
-              <div className="text-4xl mb-4">🎉</div>
-              <h1 className="text-2xl font-semibold text-foreground mb-4">
-                Setup Complete!
-              </h1>
-              <p className="text-base text-muted-foreground">
-                Thank you for completing the setup. Your wellness journey begins now.
-              </p>
+          <div className="chat-container">
+            <div className="w-full max-w-lg">
+              <div className="bot-message text-center">
+                <div className="text-4xl mb-4 animate-bounceGentle">🎉</div>
+                <h1 className="text-2xl font-semibold text-foreground mb-4">
+                  All Done! Thank You!
+                </h1>
+                <p className="text-base text-muted-foreground">
+                  Your responses help us better understand and support your wellness journey. 
+                  We truly appreciate your time and honesty.
+                </p>
+              </div>
             </div>
           </div>
         );
