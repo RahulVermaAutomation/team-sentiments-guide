@@ -6,7 +6,7 @@ import { ConversationalQuestion } from "@/components/ConversationalQuestion";
 import { FeedbackScreen } from "@/components/screens/FeedbackScreen";
 import { useToast } from "@/hooks/use-toast";
 
-type Screen = "welcome" | "privacy" | "consent" | "question1" | "question2" | "question3" | "feedback" | "complete";
+type Screen = "welcome" | "privacy" | "consent" | "question1" | "question2" | "question3" | "question4" | "question5" | "feedback" | "complete";
 
 export const WellnessChatbot = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
@@ -14,6 +14,8 @@ export const WellnessChatbot = () => {
     workSatisfaction: "",
     personalConcerns: "",
     growthMetrics: "",
+    oneOnOneFrequency: "",
+    oneOnOneHelpfulness: "",
   });
   const [additionalFeedback, setAdditionalFeedback] = useState<string | undefined>(undefined);
   const { toast } = useToast();
@@ -60,6 +62,16 @@ export const WellnessChatbot = () => {
 
   const handleQuestion3Answer = (answer: string) => {
     setQuestionResponses(prev => ({ ...prev, growthMetrics: answer }));
+    setCurrentScreen("question4");
+  };
+
+  const handleQuestion4Answer = (answer: string) => {
+    setQuestionResponses(prev => ({ ...prev, oneOnOneFrequency: answer }));
+    setCurrentScreen("question5");
+  };
+
+  const handleQuestion5Answer = (answer: string) => {
+    setQuestionResponses(prev => ({ ...prev, oneOnOneHelpfulness: answer }));
     setCurrentScreen("feedback");
   };
 
@@ -127,6 +139,24 @@ export const WellnessChatbot = () => {
             botMessage="How supported do you feel in achieving your career growth and development goals?"
             questionType="scale"
             onAnswer={handleQuestion3Answer}
+          />
+        );
+      case "question4":
+        return (
+          <ConversationalQuestion
+            emoji="🤝"
+            botMessage="Are your one-on-one meetings with your manager happening regularly?"
+            questionType="yesno"
+            onAnswer={handleQuestion4Answer}
+          />
+        );
+      case "question5":
+        return (
+          <ConversationalQuestion
+            emoji="⭐"
+            botMessage="How helpful do you find your one-on-one meetings with your manager?"
+            questionType="scale"
+            onAnswer={handleQuestion5Answer}
           />
         );
       case "feedback":
