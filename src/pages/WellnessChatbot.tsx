@@ -103,137 +103,129 @@ export const WellnessChatbot = () => {
     // Add user response to chat
     addMessage("user", response, "response");
     setShowResponseOptions(false);
+    setIsTyping(true);
 
-    switch (questionPhase) {
-      case "question1":
-        setQuestionResponses(prev => ({ ...prev, workSatisfaction: response }));
+    // AI responds based on user input and asks for more details
+    setTimeout(() => {
+      setIsTyping(false);
+      let responseText = "";
+      
+      switch (questionPhase) {
+        case "question1":
+          setQuestionResponses(prev => ({ ...prev, workSatisfaction: response }));
+          responseText = parseInt(response) >= 4 
+            ? "That's fantastic! What aspects of your work or learning opportunities do you find most fulfilling?"
+            : parseInt(response) === 3
+            ? "That sounds like a balanced perspective. What might make it even better?"
+            : "Thank you for sharing that with me. That must be challenging. What do you think would help improve things?";
+          break;
+
+        case "question2":
+          setQuestionResponses(prev => ({ ...prev, personalConcerns: response }));
+          responseText = response === "yes" 
+            ? "I appreciate you trusting me with that. Is there anything specific that might help, or would you prefer we focus on work-related topics?"
+            : "That's good to hear. It's great when personal life feels stable.";
+          break;
+
+        case "question3":
+          setQuestionResponses(prev => ({ ...prev, growthMetrics: response }));
+          responseText = parseInt(response) >= 4 
+            ? "That's excellent! Having that support makes such a difference. What kind of support has been most helpful?"
+            : parseInt(response) === 3
+            ? "It sounds like there's some support there. What additional support would be most valuable?"
+            : "That's tough. Growth support is so important. What would ideal support look like for you?";
+          break;
+
+        case "question4":
+          setQuestionResponses(prev => ({ ...prev, oneOnOneFrequency: response }));
+          responseText = response === "yes" 
+            ? "That's great to hear! Regular one-on-ones are so important for staying connected."
+            : "I understand. Regular check-ins can be challenging to maintain.";
+          break;
+
+        case "question5":
+          setQuestionResponses(prev => ({ ...prev, oneOnOneHelpfulness: response }));
+          responseText = `Thank you so much for sharing all of that with me, ${userName}. Your insights are really valuable.`;
+          break;
+      }
+      
+      addMessage("assistant", responseText);
+      
+      // Allow user to add more information before moving to next question
+      if (questionPhase !== "question5") {
         setTimeout(() => {
           setIsTyping(true);
           setTimeout(() => {
             setIsTyping(false);
-            const responseText = parseInt(response) >= 4 
-              ? "That's fantastic! What aspects of your work or learning opportunities do you find most fulfilling?"
-              : parseInt(response) === 3
-              ? "That sounds like a balanced perspective. What might make it even better?"
-              : "Thank you for sharing that with me. That must be challenging. What do you think would help improve things?";
-            
-            addMessage("assistant", responseText);
-            setTimeout(() => {
-              setIsTyping(true);
-              setTimeout(() => {
-                setIsTyping(false);
-                addMessage("assistant", "I want to make sure you're doing well overall. Do you have any personal concerns that might be affecting how you feel at work? It's completely okay if you'd rather not share details.");
-                setQuestionPhase("question2");
-                setCurrentQuestionType("yesno");
-                setShowResponseOptions(true);
-              }, 2000);
-            }, 1500);
+            addMessage("assistant", "Is there anything else you'd like to add about this, or shall we move on to the next question?");
           }, 1500);
-        }, 500);
-        break;
-
-      case "question2":
-        setQuestionResponses(prev => ({ ...prev, personalConcerns: response }));
+        }, 1000);
+      } else {
+        // After question 5, go to feedback
         setTimeout(() => {
           setIsTyping(true);
           setTimeout(() => {
             setIsTyping(false);
-            const responseText = response === "yes" 
-              ? "I appreciate you trusting me with that. Is there anything specific that might help, or would you prefer we focus on work-related topics?"
-              : "That's good to hear. It's great when personal life feels stable.";
-            
-            addMessage("assistant", responseText);
-            setTimeout(() => {
-              setIsTyping(true);
-              setTimeout(() => {
-                setIsTyping(false);
-                addMessage("assistant", "One more thing I'm curious about - how supported do you feel in achieving your career growth and development goals? Again, thinking 1 to 5, where 1 is not supported at all and 5 is fully supported.");
-                setQuestionPhase("question3");
-                setCurrentQuestionType("scale");
-                setShowResponseOptions(true);
-              }, 2000);
-            }, 1500);
-          }, 1500);
-        }, 500);
-        break;
+            addMessage("assistant", "Before we wrap up, is there anything else on your mind that you'd like to share? It could be anything - suggestions, concerns, positive feedback, or just thoughts about your work experience.");
+            setQuestionPhase("additional");
+            setCurrentScreen("feedback");
+          }, 2000);
+        }, 1500);
+      }
+    }, 1500);
+  };
 
-      case "question3":
-        setQuestionResponses(prev => ({ ...prev, growthMetrics: response }));
-        setTimeout(() => {
-          setIsTyping(true);
-          setTimeout(() => {
-            setIsTyping(false);
-            const responseText = parseInt(response) >= 4 
-              ? "That's excellent! Having that support makes such a difference. What kind of support has been most helpful?"
-              : parseInt(response) === 3
-              ? "It sounds like there's some support there. What additional support would be most valuable?"
-              : "That's tough. Growth support is so important. What would ideal support look like for you?";
-            
-            addMessage("assistant", responseText);
-            setTimeout(() => {
-              setIsTyping(true);
-              setTimeout(() => {
-                setIsTyping(false);
-                addMessage("assistant", "Are your one-on-one meetings with your manager happening regularly?");
-                setQuestionPhase("question4");
-                setCurrentQuestionType("yesno");
-                setShowResponseOptions(true);
-              }, 2000);
-            }, 1500);
-          }, 1500);
-        }, 500);
-        break;
-
-      case "question4":
-        setQuestionResponses(prev => ({ ...prev, oneOnOneFrequency: response }));
-        setTimeout(() => {
-          setIsTyping(true);
-          setTimeout(() => {
-            setIsTyping(false);
-            const responseText = response === "yes" 
-              ? "That's great to hear! Regular one-on-ones are so important for staying connected."
-              : "I understand. Regular check-ins can be challenging to maintain.";
-            
-            addMessage("assistant", responseText);
-            setTimeout(() => {
-              setIsTyping(true);
-              setTimeout(() => {
-                setIsTyping(false);
-                addMessage("assistant", "How helpful do you find your one-on-one meetings with your manager? On a scale of 1 to 5, where 1 is not helpful at all and 5 is extremely helpful.");
-                setQuestionPhase("question5");
-                setCurrentQuestionType("scale");
-                setShowResponseOptions(true);
-              }, 2000);
-            }, 1500);
-          }, 1500);
-        }, 500);
-        break;
-
-      case "question5":
-        setQuestionResponses(prev => ({ ...prev, oneOnOneHelpfulness: response }));
-        setTimeout(() => {
-          setIsTyping(true);
-          setTimeout(() => {
-            setIsTyping(false);
-            addMessage("assistant", `Thank you so much for sharing all of that with me, ${userName}. Your insights are really valuable.`);
-            setTimeout(() => {
-              setIsTyping(true);
-              setTimeout(() => {
-                setIsTyping(false);
-                addMessage("assistant", "Before we wrap up, is there anything else on your mind that you'd like to share? It could be anything - suggestions, concerns, positive feedback, or just thoughts about your work experience.");
-                setQuestionPhase("additional");
-                setCurrentScreen("feedback");
-              }, 2000);
-            }, 1500);
-          }, 1500);
-        }, 500);
-        break;
-    }
+  const moveToNextQuestion = () => {
+    setIsTyping(true);
+    
+    setTimeout(() => {
+      setIsTyping(false);
+      
+      switch (questionPhase) {
+        case "question1":
+          addMessage("assistant", "I want to make sure you're doing well overall. Do you have any personal concerns that might be affecting how you feel at work? It's completely okay if you'd rather not share details.");
+          setQuestionPhase("question2");
+          setCurrentQuestionType("yesno");
+          setShowResponseOptions(true);
+          break;
+          
+        case "question2":
+          addMessage("assistant", "One more thing I'm curious about - how supported do you feel in achieving your career growth and development goals? Again, thinking 1 to 5, where 1 is not supported at all and 5 is fully supported.");
+          setQuestionPhase("question3");
+          setCurrentQuestionType("scale");
+          setShowResponseOptions(true);
+          break;
+          
+        case "question3":
+          addMessage("assistant", "Are your one-on-one meetings with your manager happening regularly?");
+          setQuestionPhase("question4");
+          setCurrentQuestionType("yesno");
+          setShowResponseOptions(true);
+          break;
+          
+        case "question4":
+          addMessage("assistant", "How helpful do you find your one-on-one meetings with your manager? On a scale of 1 to 5, where 1 is not helpful at all and 5 is extremely helpful.");
+          setQuestionPhase("question5");
+          setCurrentQuestionType("scale");
+          setShowResponseOptions(true);
+          break;
+      }
+    }, 1500);
   };
 
   const handleChatMessage = (message: string) => {
     addMessage("user", message);
-    // Handle free-form chat responses here if needed
+    setIsTyping(true);
+    
+    // AI acknowledges and asks if user wants to continue
+    setTimeout(() => {
+      setIsTyping(false);
+      addMessage("assistant", `Thank you for sharing that, ${userName}. I really appreciate your openness. Would you like to move on to the next question now?`);
+      
+      setTimeout(() => {
+        moveToNextQuestion();
+      }, 1500);
+    }, 1500);
   };
 
   const handleFeedbackSubmit = (feedback?: string) => {

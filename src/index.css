@@ -27,7 +27,7 @@ All colors MUST be HSL.
     --secondary: 249 250 251;
     --secondary-foreground: 107 114 128; /* #6B7280 - Neutral gray */
     --muted: 249 250 251;
-    --muted-foreground: 107 114 128; /* #6B7280 - Secondary text, timestamps */
+    --muted-foreground: 75 85 99; /* #4B5563 - Darker gray for better readability */
     --accent: 249 250 251;
     --accent-foreground: 17 24 39;
     

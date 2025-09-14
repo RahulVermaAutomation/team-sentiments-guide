@@ -15,7 +15,7 @@ interface ChatInterfaceProps {
   isTyping?: boolean;
   showResponseOptions?: boolean;
   responseOptions?: {
-    type: "scale" | "yesno";
+    type: "scale" | "yesno" | "continue";
     onResponse: (response: string) => void;
   };
   userName?: string;
