@@ -298,4 +298,23 @@ All colors MUST be HSL.
     @apply bg-card rounded-2xl rounded-tr-sm p-6 mt-4 border border-border/50 shadow-sm;
     animation: slideInRight 0.4s ease-out 0.3s both;
   }
+
+  /* Consent Options */
+  .consent-options {
+    @apply flex flex-col gap-4 w-full max-w-md mx-auto p-4;
+  }
+
+  .consent-option {
+    @apply flex flex-col items-center p-6 rounded-xl border-2 border-border bg-card text-card-foreground;
+    @apply hover:border-primary hover:bg-accent transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+
+  .consent-option.selected {
+    @apply border-primary bg-primary/10 shadow-md;
+  }
+
+  .consent-option:hover {
+    @apply shadow-lg transform translate-y-[-2px];
+  }
 }

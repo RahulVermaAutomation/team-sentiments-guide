@@ -15,7 +15,7 @@ interface Message {
 }
 
 type Screen = "welcome" | "privacy" | "consent" | "chat" | "feedback" | "complete";
-type QuestionPhase = "welcome" | "question1" | "question2" | "question3" | "question4" | "question5" | "additional" | "complete";
+type QuestionPhase = "welcome" | "consent" | "question1" | "question2" | "question3" | "question4" | "question5" | "additional" | "complete";
 
 export const WellnessChatbot = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
@@ -23,7 +23,7 @@ export const WellnessChatbot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showResponseOptions, setShowResponseOptions] = useState(false);
-  const [currentQuestionType, setCurrentQuestionType] = useState<"scale" | "yesno">("scale");
+  const [currentQuestionType, setCurrentQuestionType] = useState<"scale" | "yesno" | "consent">("scale");
   const [questionResponses, setQuestionResponses] = useState({
     workSatisfaction: "",
     personalConcerns: "",
@@ -90,10 +90,31 @@ export const WellnessChatbot = () => {
         setIsTyping(true);
         setTimeout(() => {
           setIsTyping(false);
-          addMessage("assistant", "I'm here to have a friendly chat and learn a bit about your work experience. I'd love to know - how satisfied are you feeling with your current work and the learning opportunities you have? I'm thinking on a scale where 1 would be really dissatisfied and 5 would be very satisfied.");
-          setQuestionPhase("question1");
-          setCurrentQuestionType("scale");
-          setShowResponseOptions(true);
+          addMessage("assistant", "Before we begin, I'd like to share some important information about your privacy and how we handle your data.");
+          setTimeout(() => {
+            setIsTyping(true);
+            setTimeout(() => {
+              setIsTyping(false);
+              addMessage("assistant", "This wellness assistant is designed to support you and your team's well-being. We take your privacy seriously and want to be transparent about our data practices.");
+              setTimeout(() => {
+                setIsTyping(true);
+                setTimeout(() => {
+                  setIsTyping(false);
+                  addMessage("assistant", "Your responses will be used to understand team wellness trends and improve our support systems. All data is encrypted and stored securely. You have control over what you share and can stop at any time.");
+                  setTimeout(() => {
+                    setIsTyping(true);
+                    setTimeout(() => {
+                      setIsTyping(false);
+                      addMessage("assistant", "Now, I need your consent to proceed. Please choose one of the following options:");
+                      setQuestionPhase("consent");
+                      setCurrentQuestionType("consent");
+                      setShowResponseOptions(true);
+                    }, 2000);
+                  }, 1500);
+                }, 2000);
+              }, 1500);
+            }, 2000);
+          }, 1500);
         }, 2000);
       }, 1500);
     }, 1000);
@@ -104,6 +125,42 @@ export const WellnessChatbot = () => {
     addMessage("user", response, "response");
     setShowResponseOptions(false);
     setIsTyping(true);
+
+    // Handle consent responses
+    if (questionPhase === "consent") {
+      setTimeout(() => {
+        setIsTyping(false);
+        let responseText = "";
+        
+        switch (response) {
+          case "agree-full":
+            responseText = "Great! Thank you for your consent. We will save your full name and email ID for the feedback you have shared. This helps us provide personalized support and follow up on your wellness journey.";
+            break;
+          case "agree-anonymous":
+            responseText = "Thank you for participating anonymously. We will not save your personal information, but your responses will be used for team-level feedback to improve our wellness programs.";
+            break;
+          case "decline":
+            responseText = "Thank you for sharing your feedback. If you want to discuss more about the personal assistant, you can reach out to PSPersonal.Assistant@PS.com for more information.";
+            setCurrentScreen("complete");
+            return;
+        }
+        
+        addMessage("assistant", responseText);
+        
+        // After consent, start the wellness questions
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            addMessage("assistant", "Now let's begin! I'm here to have a friendly chat and learn a bit about your work experience. I'd love to know - how satisfied are you feeling with your current work and the learning opportunities you have? I'm thinking on a scale where 1 would be really dissatisfied and 5 would be very satisfied.");
+            setQuestionPhase("question1");
+            setCurrentQuestionType("scale");
+            setShowResponseOptions(true);
+          }, 2000);
+        }, 1500);
+      }, 1500);
+      return;
+    }
 
     // AI responds based on user input and asks for more details
     setTimeout(() => {

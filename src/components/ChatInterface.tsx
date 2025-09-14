@@ -15,7 +15,7 @@ interface ChatInterfaceProps {
   isTyping?: boolean;
   showResponseOptions?: boolean;
   responseOptions?: {
-    type: "scale" | "yesno" | "continue";
+    type: "scale" | "yesno" | "continue" | "consent";
     onResponse: (response: string) => void;
   };
   userName?: string;
@@ -83,6 +83,35 @@ export const ChatInterface = ({
           </div>
         </button>
       ))}
+    </div>
+  );
+
+  const renderConsentOptions = () => (
+    <div className="consent-options">
+      <button
+        onClick={() => handleResponseSelect("agree-full")}
+        className={`consent-option ${selectedResponse === "agree-full" ? 'selected' : ''}`}
+      >
+        <div className="text-2xl mb-2">✅</div>
+        <div className="font-medium">I Agree and Consent</div>
+        <div className="text-xs opacity-75 mt-1">Full participation with data collection</div>
+      </button>
+      <button
+        onClick={() => handleResponseSelect("agree-anonymous")}
+        className={`consent-option ${selectedResponse === "agree-anonymous" ? 'selected' : ''}`}
+      >
+        <div className="text-2xl mb-2">🔒</div>
+        <div className="font-medium">I Agree as Anonymous</div>
+        <div className="text-xs opacity-75 mt-1">Anonymous participation without personal data</div>
+      </button>
+      <button
+        onClick={() => handleResponseSelect("decline")}
+        className={`consent-option ${selectedResponse === "decline" ? 'selected' : ''}`}
+      >
+        <div className="text-2xl mb-2">❌</div>
+        <div className="font-medium">I don't wish to proceed at this time</div>
+        <div className="text-xs opacity-75 mt-1">End the session</div>
+      </button>
     </div>
   );
 
@@ -167,7 +196,9 @@ export const ChatInterface = ({
             <div className="text-sm text-muted-foreground mb-3 text-center">
               Please select your response:
             </div>
-            {responseOptions.type === "scale" ? renderScaleOptions() : renderYesNoOptions()}
+            {responseOptions.type === "scale" ? renderScaleOptions() : 
+             responseOptions.type === "yesno" ? renderYesNoOptions() :
+             responseOptions.type === "consent" ? renderConsentOptions() : null}
           </div>
         )}
 
