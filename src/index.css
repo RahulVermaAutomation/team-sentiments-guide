@@ -121,7 +121,7 @@ All colors MUST be HSL.
 @layer components {
   /* Chat Interface Styles */
   .chat-interface {
-    @apply h-screen flex flex-col bg-background font-inter;
+    @apply h-screen flex flex-col bg-background;
   }
 
   .chat-header {
