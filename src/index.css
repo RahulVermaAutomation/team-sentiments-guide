@@ -8,115 +8,101 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Wellness-focused background */
-    --background: 220 14% 98%;
-    --foreground: 215 28% 17%;
-
-    /* Card system */
-    --card: 0 0% 100%;
-    --card-foreground: 215 28% 17%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 28% 17%;
-
-    /* Primary wellness green */
-    --primary: 158 64% 52%;
-    --primary-foreground: 0 0% 100%;
-
-    /* Secondary calm gray */
-    --secondary: 220 13% 91%;
-    --secondary-foreground: 215 28% 17%;
-
-    /* Muted tones */
-    --muted: 220 13% 91%;
-    --muted-foreground: 220 9% 46%;
-
-    /* Accent for highlights */
-    --accent: 220 13% 91%;
-    --accent-foreground: 215 28% 17%;
-
-    /* Warning and alert colors */
-    --warning: 45 93% 47%;
-    --warning-foreground: 0 0% 100%;
+    /* Chat Interface Color Palette */
+    --background: 249 250 251; /* #F9FAFB - Light gray background */
+    --foreground: 17 24 39; /* #111827 - Dark text */
+    --card: 255 255 255; /* #FFFFFF - White message bubbles */
+    --card-foreground: 17 24 39;
+    --popover: 255 255 255;
+    --popover-foreground: 17 24 39;
     
-    --alert: 0 84% 60%;
-    --alert-foreground: 0 0% 100%;
+    /* AI Assistant - Primary Green */
+    --primary: 152 69% 35%; /* #10B981 - AI responses, positive states */
+    --primary-foreground: 255 255 255;
     
-    --info: 217 92% 60%;
-    --info-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    /* Borders and inputs */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 158 64% 52%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* User Messages - Blue */
+    --user-primary: 217 91% 60%; /* #3B82F6 - User messages */
+    --user-primary-foreground: 255 255 255;
+    
+    --secondary: 249 250 251;
+    --secondary-foreground: 107 114 128; /* #6B7280 - Neutral gray */
+    --muted: 249 250 251;
+    --muted-foreground: 107 114 128; /* #6B7280 - Secondary text, timestamps */
+    --accent: 249 250 251;
+    --accent-foreground: 17 24 39;
+    
+    /* Status Colors */
+    --warning: 251 146% 47%; /* #F59E0B - Warning yellow */
+    --warning-foreground: 255 255 255;
+    --alert: 239 68% 68%; /* #EF4444 - Alert red */
+    --alert-foreground: 255 255 255;
+    --info: 217 91% 60%; /* #3B82F6 - Info blue */
+    --info-foreground: 255 255 255;
+    
+    --destructive: 239 68% 68%;
+    --destructive-foreground: 255 255 255;
+    --border: 229 84% 5%; /* Light border */
+    --input: 229 84% 5%;
+    --ring: 152 69% 35%;
+    
+    --radius: 1rem; /* 16px rounded corners for chat bubbles */
+    
+    --sidebar-background: 255 255 255;
+    --sidebar-foreground: 17 24 39;
+    --sidebar-primary: 17 24 39;
+    --sidebar-primary-foreground: 255 255 255;
+    --sidebar-accent: 249 250 251;
+    --sidebar-accent-foreground: 17 24 39;
+    --sidebar-border: 229 84% 5%;
+    --sidebar-ring: 152 69% 35%;
   }
 
   .dark {
-    --background: 215 28% 17%;
-    --foreground: 0 0% 98%;
-
-    --card: 215 28% 17%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 215 28% 17%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 158 64% 52%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 215 25% 27%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 215 25% 27%;
-    --muted-foreground: 220 9% 46%;
-
-    --accent: 215 25% 27%;
-    --accent-foreground: 0 0% 98%;
-
-    --warning: 45 93% 47%;
-    --warning-foreground: 0 0% 100%;
+    /* Dark Mode Chat Interface */
+    --background: 17 24 39; /* #111827 - Dark background */
+    --foreground: 249 250 251; /* #F9FAFB - Light text */
+    --card: 31 41 55; /* #1F2937 - Dark message bubbles */
+    --card-foreground: 249 250 251;
+    --popover: 31 41 55;
+    --popover-foreground: 249 250 251;
     
-    --alert: 0 84% 60%;
-    --alert-foreground: 0 0% 100%;
+    /* AI Assistant - Primary Green (same) */
+    --primary: 152 69% 35%; /* #10B981 */
+    --primary-foreground: 255 255 255;
     
-    --info: 217 92% 60%;
-    --info-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 215 25% 27%;
-    --input: 215 25% 27%;
-    --ring: 158 64% 52%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* User Messages - Blue (same) */
+    --user-primary: 217 91% 60%; /* #3B82F6 */
+    --user-primary-foreground: 255 255 255;
+    
+    --secondary: 31 41 55;
+    --secondary-foreground: 156 163 175; /* #9CA3AF - Lighter gray for dark mode */
+    --muted: 31 41 55;
+    --muted-foreground: 156 163 175; /* #9CA3AF - Timestamps in dark mode */
+    --accent: 31 41 55;
+    --accent-foreground: 249 250 251;
+    
+    /* Status Colors (same) */
+    --warning: 251 146% 47%; /* #F59E0B */
+    --warning-foreground: 17 24 39;
+    --alert: 239 68% 68%; /* #EF4444 */
+    --alert-foreground: 255 255 255;
+    --info: 217 91% 60%; /* #3B82F6 */
+    --info-foreground: 255 255 255;
+    
+    --destructive: 239 68% 68%;
+    --destructive-foreground: 255 255 255;
+    --border: 55 65 81; /* #374151 - Dark border */
+    --input: 55 65 81;
+    --ring: 152 69% 35%;
+    
+    --sidebar-background: 17 24 39;
+    --sidebar-foreground: 249 250 251;
+    --sidebar-primary: 17 24 39;
+    --sidebar-primary-foreground: 249 250 251;
+    --sidebar-accent: 31 41 55;
+    --sidebar-accent-foreground: 249 250 251;
+    --sidebar-border: 55 65 81;
+    --sidebar-ring: 152 69% 35%;
   }
 }
 
@@ -128,62 +114,188 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground font-sans;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
   }
 }
 
 @layer components {
-  /* Wellness card styling */
+  /* Chat Interface Styles */
+  .chat-interface {
+    @apply h-screen flex flex-col bg-background font-inter;
+  }
+
+  .chat-header {
+    @apply bg-card border-b border-border px-6 py-4 flex items-center justify-between shadow-sm z-10;
+  }
+
+  .chat-header-left {
+    @apply flex items-center gap-3;
+  }
+
+  .assistant-avatar {
+    @apply w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-md;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+  }
+
+  .chat-header-info h2 {
+    @apply text-lg font-semibold text-foreground m-0;
+  }
+
+  .chat-header-status {
+    @apply text-sm text-muted-foreground flex items-center gap-1;
+  }
+
+  .status-indicator {
+    @apply w-2 h-2 bg-primary rounded-full animate-pulse;
+  }
+
+  .chat-messages {
+    @apply flex-1 overflow-y-auto p-6 flex flex-col gap-4 scroll-smooth;
+  }
+
+  .message {
+    @apply flex items-end gap-3 max-w-[85%] animate-messageSlideIn;
+  }
+
+  .message.ai-message {
+    @apply self-start;
+  }
+
+  .message.user-message {
+    @apply self-end flex-row-reverse;
+  }
+
+  .message-avatar {
+    @apply w-8 h-8 rounded-full flex items-center justify-center text-base flex-shrink-0;
+  }
+
+  .message-avatar.ai-avatar {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+    @apply text-primary-foreground;
+  }
+
+  .message-avatar.user-avatar {
+    background: linear-gradient(135deg, hsl(var(--user-primary)), hsl(var(--user-primary) / 0.8));
+    @apply text-user-primary-foreground;
+  }
+
+  .message-bubble {
+    @apply rounded-2xl py-3.5 px-4 shadow-sm relative break-words;
+  }
+
+  .message-bubble.ai-bubble {
+    @apply bg-card text-foreground rounded-bl-md border border-border;
+  }
+
+  .message-bubble.user-bubble {
+    @apply bg-user-primary text-user-primary-foreground rounded-br-md;
+  }
+
+  .message-content {
+    @apply text-base leading-relaxed m-0;
+  }
+
+  .message-timestamp {
+    @apply text-xs text-muted-foreground mt-1 text-right;
+  }
+
+  .user-message .message-timestamp {
+    @apply text-left;
+  }
+
+  .typing-indicator {
+    @apply flex items-center gap-2 text-muted-foreground italic text-sm;
+  }
+
+  .typing-dots {
+    @apply flex gap-1;
+  }
+
+  .typing-dot {
+    @apply w-1.5 h-1.5 rounded-full bg-primary animate-typingPulse;
+  }
+
+  .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+  .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+  .typing-dot:nth-child(3) { animation-delay: 0s; }
+
+  .chat-input-area {
+    @apply bg-card border-t border-border p-4 shadow-sm;
+  }
+
+  .chat-input-container {
+    @apply flex items-center gap-3 bg-background border border-border rounded-3xl p-2 transition-colors;
+  }
+
+  .chat-input-container:focus-within {
+    @apply border-primary;
+  }
+
+  .chat-input {
+    @apply flex-1 border-0 outline-0 bg-transparent text-base py-2 px-3 text-foreground resize-none max-h-[120px] min-h-[40px];
+  }
+
+  .chat-input::placeholder {
+    @apply text-muted-foreground;
+  }
+
+  .input-action-btn {
+    @apply w-9 h-9 rounded-full border-0 flex items-center justify-center cursor-pointer transition-all text-base;
+  }
+
+  .voice-btn {
+    @apply bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground;
+  }
+
+  .send-btn {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105;
+  }
+
+  .response-options {
+    @apply flex flex-col gap-3 mt-4;
+  }
+
+  .scale-options {
+    @apply grid grid-cols-5 gap-2;
+  }
+
+  .scale-option {
+    @apply flex flex-col items-center justify-center py-3.5 px-2 border-2 border-border rounded-xl bg-background cursor-pointer transition-all min-h-[70px] text-sm text-center hover:border-primary hover:bg-primary/5 hover:-translate-y-0.5;
+  }
+
+  .scale-option.selected {
+    @apply border-primary bg-primary text-primary-foreground scale-105;
+  }
+
+  .yesno-options {
+    @apply flex gap-4 justify-center;
+  }
+
+  .yesno-option {
+    @apply flex flex-col items-center justify-center py-5 px-8 border-2 border-border rounded-xl bg-background cursor-pointer transition-all min-w-[120px] text-base hover:border-primary hover:bg-primary/5 hover:-translate-y-0.5;
+  }
+
+  .yesno-option.selected {
+    @apply border-primary bg-primary text-primary-foreground scale-105;
+  }
+
+  /* Legacy support for existing components */
   .wellness-card {
     @apply bg-card rounded-xl shadow-lg border border-border/50 p-8;
     backdrop-filter: blur(10px);
   }
-  
-  /* Chat-like conversation styling */
+
   .chat-container {
     @apply min-h-screen bg-gradient-to-br from-background via-background to-secondary/20 flex items-center justify-center p-4;
   }
-  
+
   .bot-message {
     @apply bg-primary/10 border border-primary/20 rounded-2xl rounded-bl-sm p-6 max-w-md mx-auto;
     animation: slideInLeft 0.6s ease-out, fadeIn 0.6s ease-out;
   }
-  
+
   .user-response-area {
     @apply bg-card rounded-2xl rounded-tr-sm p-6 mt-4 border border-border/50 shadow-sm;
     animation: slideInRight 0.4s ease-out 0.3s both;
-  }
-  
-  .typing-indicator {
-    @apply flex items-center space-x-1 text-primary/60 text-sm;
-  }
-  
-  .typing-dot {
-    @apply w-2 h-2 bg-primary/40 rounded-full;
-    animation: typingPulse 1.4s ease-in-out infinite;
-  }
-  
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-  
-  /* Screen transitions */
-  .screen-transition {
-    @apply transition-all duration-500 ease-in-out;
-  }
-  
-  /* Interactive elements */
-  .scale-option {
-    @apply flex flex-col items-center p-3 rounded-xl border-2 border-border/50 hover:border-primary/50 transition-all duration-200 hover:scale-105 cursor-pointer;
-  }
-  
-  .scale-option.selected {
-    @apply border-primary bg-primary/5 shadow-sm;
-  }
-  
-  .yes-no-option {
-    @apply flex-1 p-4 rounded-xl border-2 border-border/50 hover:border-primary/50 transition-all duration-200 hover:scale-[1.02] cursor-pointer text-center font-medium;
-  }
-  
-  .yes-no-option.selected {
-    @apply border-primary bg-primary/5 text-primary shadow-sm;
   }
 }

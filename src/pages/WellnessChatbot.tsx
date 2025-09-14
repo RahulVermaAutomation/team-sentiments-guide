@@ -2,14 +2,28 @@ import { useState } from "react";
 import { WelcomeScreen } from "@/components/screens/WelcomeScreen";
 import { PrivacyScreen } from "@/components/screens/PrivacyScreen";
 import { ConsentScreen } from "@/components/screens/ConsentScreen";
-import { ConversationalQuestion } from "@/components/ConversationalQuestion";
+import { ChatInterface } from "@/components/ChatInterface";
 import { FeedbackScreen } from "@/components/screens/FeedbackScreen";
 import { useToast } from "@/hooks/use-toast";
 
-type Screen = "welcome" | "privacy" | "consent" | "question1" | "question2" | "question3" | "question4" | "question5" | "feedback" | "complete";
+interface Message {
+  id: string;
+  role: "assistant" | "user";
+  content: string;
+  timestamp: Date;
+  type?: "text" | "question" | "response";
+}
+
+type Screen = "welcome" | "privacy" | "consent" | "chat" | "feedback" | "complete";
+type QuestionPhase = "welcome" | "question1" | "question2" | "question3" | "question4" | "question5" | "additional" | "complete";
 
 export const WellnessChatbot = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
+  const [questionPhase, setQuestionPhase] = useState<QuestionPhase>("welcome");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [showResponseOptions, setShowResponseOptions] = useState(false);
+  const [currentQuestionType, setCurrentQuestionType] = useState<"scale" | "yesno">("scale");
   const [questionResponses, setQuestionResponses] = useState({
     workSatisfaction: "",
     personalConcerns: "",
@@ -19,6 +33,8 @@ export const WellnessChatbot = () => {
   });
   const [additionalFeedback, setAdditionalFeedback] = useState<string | undefined>(undefined);
   const { toast } = useToast();
+
+  const userName = "Rahul"; // This could be dynamic based on authentication
 
   const handleContinue = () => {
     setCurrentScreen("privacy");
@@ -43,36 +59,181 @@ export const WellnessChatbot = () => {
   };
 
   const handleConsent = () => {
-    setCurrentScreen("question1");
+    setCurrentScreen("chat");
     toast({
       title: "Thank you!",
       description: "Your consent has been recorded. You can now proceed with the wellness assessment.",
     });
+    setTimeout(() => {
+      startChatFlow();
+    }, 1000);
   };
 
-  const handleQuestion1Answer = (answer: string) => {
-    setQuestionResponses(prev => ({ ...prev, workSatisfaction: answer }));
-    setCurrentScreen("question2");
+  // Chat flow management
+  const addMessage = (role: "assistant" | "user", content: string, type?: "text" | "question" | "response") => {
+    const newMessage: Message = {
+      id: `msg_${Date.now()}_${Math.random()}`,
+      role,
+      content,
+      timestamp: new Date(),
+      type
+    };
+    setMessages(prev => [...prev, newMessage]);
   };
 
-  const handleQuestion2Answer = (answer: string) => {
-    setQuestionResponses(prev => ({ ...prev, personalConcerns: answer }));
-    setCurrentScreen("question3");
+  const startChatFlow = () => {
+    setIsTyping(true);
+    setTimeout(() => {
+      setIsTyping(false);
+      addMessage("assistant", `Hi ${userName}! 👋 How are you doing today? I hope everything's going well for you!`);
+      setTimeout(() => {
+        setIsTyping(true);
+        setTimeout(() => {
+          setIsTyping(false);
+          addMessage("assistant", "I'm here to have a friendly chat and learn a bit about your work experience. I'd love to know - how satisfied are you feeling with your current work and the learning opportunities you have? I'm thinking on a scale where 1 would be really dissatisfied and 5 would be very satisfied.");
+          setQuestionPhase("question1");
+          setCurrentQuestionType("scale");
+          setShowResponseOptions(true);
+        }, 2000);
+      }, 1500);
+    }, 1000);
   };
 
-  const handleQuestion3Answer = (answer: string) => {
-    setQuestionResponses(prev => ({ ...prev, growthMetrics: answer }));
-    setCurrentScreen("question4");
+  const handleQuestionResponse = (response: string) => {
+    // Add user response to chat
+    addMessage("user", response, "response");
+    setShowResponseOptions(false);
+
+    switch (questionPhase) {
+      case "question1":
+        setQuestionResponses(prev => ({ ...prev, workSatisfaction: response }));
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            const responseText = parseInt(response) >= 4 
+              ? "That's fantastic! What aspects of your work or learning opportunities do you find most fulfilling?"
+              : parseInt(response) === 3
+              ? "That sounds like a balanced perspective. What might make it even better?"
+              : "Thank you for sharing that with me. That must be challenging. What do you think would help improve things?";
+            
+            addMessage("assistant", responseText);
+            setTimeout(() => {
+              setIsTyping(true);
+              setTimeout(() => {
+                setIsTyping(false);
+                addMessage("assistant", "I want to make sure you're doing well overall. Do you have any personal concerns that might be affecting how you feel at work? It's completely okay if you'd rather not share details.");
+                setQuestionPhase("question2");
+                setCurrentQuestionType("yesno");
+                setShowResponseOptions(true);
+              }, 2000);
+            }, 1500);
+          }, 1500);
+        }, 500);
+        break;
+
+      case "question2":
+        setQuestionResponses(prev => ({ ...prev, personalConcerns: response }));
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            const responseText = response === "yes" 
+              ? "I appreciate you trusting me with that. Is there anything specific that might help, or would you prefer we focus on work-related topics?"
+              : "That's good to hear. It's great when personal life feels stable.";
+            
+            addMessage("assistant", responseText);
+            setTimeout(() => {
+              setIsTyping(true);
+              setTimeout(() => {
+                setIsTyping(false);
+                addMessage("assistant", "One more thing I'm curious about - how supported do you feel in achieving your career growth and development goals? Again, thinking 1 to 5, where 1 is not supported at all and 5 is fully supported.");
+                setQuestionPhase("question3");
+                setCurrentQuestionType("scale");
+                setShowResponseOptions(true);
+              }, 2000);
+            }, 1500);
+          }, 1500);
+        }, 500);
+        break;
+
+      case "question3":
+        setQuestionResponses(prev => ({ ...prev, growthMetrics: response }));
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            const responseText = parseInt(response) >= 4 
+              ? "That's excellent! Having that support makes such a difference. What kind of support has been most helpful?"
+              : parseInt(response) === 3
+              ? "It sounds like there's some support there. What additional support would be most valuable?"
+              : "That's tough. Growth support is so important. What would ideal support look like for you?";
+            
+            addMessage("assistant", responseText);
+            setTimeout(() => {
+              setIsTyping(true);
+              setTimeout(() => {
+                setIsTyping(false);
+                addMessage("assistant", "Are your one-on-one meetings with your manager happening regularly?");
+                setQuestionPhase("question4");
+                setCurrentQuestionType("yesno");
+                setShowResponseOptions(true);
+              }, 2000);
+            }, 1500);
+          }, 1500);
+        }, 500);
+        break;
+
+      case "question4":
+        setQuestionResponses(prev => ({ ...prev, oneOnOneFrequency: response }));
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            const responseText = response === "yes" 
+              ? "That's great to hear! Regular one-on-ones are so important for staying connected."
+              : "I understand. Regular check-ins can be challenging to maintain.";
+            
+            addMessage("assistant", responseText);
+            setTimeout(() => {
+              setIsTyping(true);
+              setTimeout(() => {
+                setIsTyping(false);
+                addMessage("assistant", "How helpful do you find your one-on-one meetings with your manager? On a scale of 1 to 5, where 1 is not helpful at all and 5 is extremely helpful.");
+                setQuestionPhase("question5");
+                setCurrentQuestionType("scale");
+                setShowResponseOptions(true);
+              }, 2000);
+            }, 1500);
+          }, 1500);
+        }, 500);
+        break;
+
+      case "question5":
+        setQuestionResponses(prev => ({ ...prev, oneOnOneHelpfulness: response }));
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            addMessage("assistant", `Thank you so much for sharing all of that with me, ${userName}. Your insights are really valuable.`);
+            setTimeout(() => {
+              setIsTyping(true);
+              setTimeout(() => {
+                setIsTyping(false);
+                addMessage("assistant", "Before we wrap up, is there anything else on your mind that you'd like to share? It could be anything - suggestions, concerns, positive feedback, or just thoughts about your work experience.");
+                setQuestionPhase("additional");
+                setCurrentScreen("feedback");
+              }, 2000);
+            }, 1500);
+          }, 1500);
+        }, 500);
+        break;
+    }
   };
 
-  const handleQuestion4Answer = (answer: string) => {
-    setQuestionResponses(prev => ({ ...prev, oneOnOneFrequency: answer }));
-    setCurrentScreen("question5");
-  };
-
-  const handleQuestion5Answer = (answer: string) => {
-    setQuestionResponses(prev => ({ ...prev, oneOnOneHelpfulness: answer }));
-    setCurrentScreen("feedback");
+  const handleChatMessage = (message: string) => {
+    addMessage("user", message);
+    // Handle free-form chat responses here if needed
   };
 
   const handleFeedbackSubmit = (feedback?: string) => {
@@ -114,49 +275,18 @@ export const WellnessChatbot = () => {
             onDecline={handleDecline}
           />
         );
-      case "question1":
+      case "chat":
         return (
-          <ConversationalQuestion
-            emoji="🎯"
-            botMessage="How satisfied are you with your current work and the learning opportunities available to you?"
-            questionType="scale"
-            onAnswer={handleQuestion1Answer}
-          />
-        );
-      case "question2":
-        return (
-          <ConversationalQuestion
-            emoji="💭"
-            botMessage="Do you have any personal concerns that are affecting how you feel at work?"
-            questionType="yesno"
-            onAnswer={handleQuestion2Answer}
-          />
-        );
-      case "question3":
-        return (
-          <ConversationalQuestion
-            emoji="📈"
-            botMessage="How supported do you feel in achieving your career growth and development goals?"
-            questionType="scale"
-            onAnswer={handleQuestion3Answer}
-          />
-        );
-      case "question4":
-        return (
-          <ConversationalQuestion
-            emoji="🤝"
-            botMessage="Are your one-on-one meetings with your manager happening regularly?"
-            questionType="yesno"
-            onAnswer={handleQuestion4Answer}
-          />
-        );
-      case "question5":
-        return (
-          <ConversationalQuestion
-            emoji="⭐"
-            botMessage="How helpful do you find your one-on-one meetings with your manager?"
-            questionType="scale"
-            onAnswer={handleQuestion5Answer}
+          <ChatInterface
+            messages={messages}
+            onSendMessage={handleChatMessage}
+            isTyping={isTyping}
+            showResponseOptions={showResponseOptions}
+            responseOptions={{
+              type: currentQuestionType,
+              onResponse: handleQuestionResponse
+            }}
+            userName={userName}
           />
         );
       case "feedback":
