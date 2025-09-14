@@ -18,7 +18,7 @@ type Screen = "welcome" | "privacy" | "consent" | "chat" | "feedback" | "complet
 type QuestionPhase = "welcome" | "consent" | "question1" | "question2" | "question3" | "question4" | "question5" | "additional" | "complete";
 
 export const WellnessChatbot = () => {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
+  const [currentScreen, setCurrentScreen] = useState<Screen>("chat");
   const [questionPhase, setQuestionPhase] = useState<QuestionPhase>("welcome");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -36,38 +36,10 @@ export const WellnessChatbot = () => {
 
   const userName = "Rahul"; // This could be dynamic based on authentication
 
-  const handleContinue = () => {
-    setCurrentScreen("privacy");
-  };
-
-  const handleLearnMore = () => {
-    toast({
-      title: "Learn More",
-      description: "This wellness chatbot is designed to support you and your team's well-being while maintaining strict privacy standards.",
-    });
-  };
-
-  const handleAgree = () => {
-    setCurrentScreen("consent");
-  };
-
-  const handleQuestions = () => {
-    toast({
-      title: "Questions about Privacy",
-      description: "If you have specific questions about data privacy, please contact your HR department or wellness team lead.",
-    });
-  };
-
-  const handleConsent = () => {
-    setCurrentScreen("chat");
-    toast({
-      title: "Thank you!",
-      description: "Your consent has been recorded. You can now proceed with the wellness assessment.",
-    });
-    setTimeout(() => {
-      startChatFlow();
-    }, 1000);
-  };
+  // Initialize chat flow on component mount
+  useState(() => {
+    startChatFlow();
+  });
 
   // Chat flow management
   const addMessage = (role: "assistant" | "user", content: string, type?: "text" | "question" | "response") => {
@@ -85,36 +57,15 @@ export const WellnessChatbot = () => {
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
-      addMessage("assistant", `Hi ${userName}! 👋 How are you doing today? I hope everything's going well for you!`);
+      addMessage("assistant", `Hi ${userName}! 👋 How are you doing today?`);
       setTimeout(() => {
         setIsTyping(true);
         setTimeout(() => {
           setIsTyping(false);
-          addMessage("assistant", "Before we begin, I'd like to share some important information about your privacy and how we handle your data.");
-          setTimeout(() => {
-            setIsTyping(true);
-            setTimeout(() => {
-              setIsTyping(false);
-              addMessage("assistant", "This wellness assistant is designed to support you and your team's well-being. We take your privacy seriously and want to be transparent about our data practices.");
-              setTimeout(() => {
-                setIsTyping(true);
-                setTimeout(() => {
-                  setIsTyping(false);
-                  addMessage("assistant", "Your responses will be used to understand team wellness trends and improve our support systems. All data is encrypted and stored securely. You have control over what you share and can stop at any time.");
-                  setTimeout(() => {
-                    setIsTyping(true);
-                    setTimeout(() => {
-                      setIsTyping(false);
-                      addMessage("assistant", "Now, I need your consent to proceed. Please choose one of the following options:");
-                      setQuestionPhase("consent");
-                      setCurrentQuestionType("consent");
-                      setShowResponseOptions(true);
-                    }, 2000);
-                  }, 1500);
-                }, 2000);
-              }, 1500);
-            }, 2000);
-          }, 1500);
+          addMessage("assistant", "Before we begin, I'd like to share some important information about your privacy and how we handle your data.\n\nThis wellness assistant is designed to support you and your team's well-being. We take your privacy seriously and want to be transparent about our data practices.\n\nYour responses will be used to understand team wellness trends and improve our support systems. All data is encrypted and stored securely. You have control over what you share and can stop at any time.\n\nNow, I need your consent to proceed. Please choose one of the following options:");
+          setQuestionPhase("consent");
+          setCurrentQuestionType("consent");
+          setShowResponseOptions(true);
         }, 2000);
       }, 1500);
     }, 1000);
@@ -303,27 +254,6 @@ export const WellnessChatbot = () => {
 
   const renderScreen = () => {
     switch (currentScreen) {
-      case "welcome":
-        return (
-          <WelcomeScreen 
-            onContinue={handleContinue}
-            onLearnMore={handleLearnMore}
-          />
-        );
-      case "privacy":
-        return (
-          <PrivacyScreen 
-            onAgree={handleAgree}
-            onQuestions={handleQuestions}
-          />
-        );
-      case "consent":
-        return (
-          <ConsentScreen 
-            onConsent={handleConsent}
-            onDecline={handleDecline}
-          />
-        );
       case "chat":
         return (
           <ChatInterface
