@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WelcomeScreen } from "@/components/screens/WelcomeScreen";
 import { PrivacyScreen } from "@/components/screens/PrivacyScreen";
 import { ConsentScreen } from "@/components/screens/ConsentScreen";
@@ -37,9 +37,9 @@ export const WellnessChatbot = () => {
   const userName = "Rahul"; // This could be dynamic based on authentication
 
   // Initialize chat flow on component mount
-  useState(() => {
+  useEffect(() => {
     startChatFlow();
-  });
+  }, []);
 
   // Chat flow management
   const addMessage = (role: "assistant" | "user", content: string, type?: "text" | "question" | "response") => {
@@ -53,7 +53,7 @@ export const WellnessChatbot = () => {
     setMessages(prev => [...prev, newMessage]);
   };
 
-  const startChatFlow = () => {
+  function startChatFlow() {
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
@@ -69,7 +69,7 @@ export const WellnessChatbot = () => {
         }, 2000);
       }, 1500);
     }, 1000);
-  };
+  }
 
   const handleQuestionResponse = (response: string) => {
     // Add user response to chat
