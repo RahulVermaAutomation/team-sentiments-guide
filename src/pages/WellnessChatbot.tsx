@@ -184,47 +184,50 @@ export const WellnessChatbot = () => {
             setIsTyping(false);
 
             // Analyze satisfaction and whether AI already asked a question
-            const userResponse = response.toLowerCase();
-            const isLowScore = ['1', '2'].includes(response);
-            const seemsUnsatisfied = isLowScore ||
-              userResponse.includes('no') ||
-              userResponse.includes('not') ||
-              userResponse.includes('difficult') ||
-              userResponse.includes('problem') ||
-              userResponse.includes('issue') ||
-              userResponse.includes('concern') ||
-              userResponse.includes('worry') ||
-              userResponse.includes('stress') ||
-              userResponse.includes('struggle') ||
-              userResponse.includes('challenge');
+            const userResponse = response.trim().toLowerCase();
+            const num = parseInt(response, 10);
+            const isNumeric = !Number.isNaN(num);
 
-            const aiText = aiResponse.response || '';
-            const aiAskedQuestion = aiText.includes('?');
-            const askedMoveOn = /(move (on|to the next)|next question|continue|proceed|ready to move)/i.test(aiText);
-            const askedFollowUp = /(what|how|could you|would you|tell me more|share more|help|support|improve)/i.test(aiText);
+            // Determine dissatisfaction based on question type and content
+            let seemsUnsatisfied = false;
+            if (["question1", "question3", "question5"].includes(questionPhase) && isNumeric) {
+              seemsUnsatisfied = num <= 2;
+            }
+            if (questionPhase === "question2") {
+              // Saying "yes" to concerns implies something might be affecting them
+              seemsUnsatisfied = seemsUnsatisfied || userResponse.startsWith("y");
+            }
+            if (questionPhase === "question4") {
+              // Saying "no" to regular 1:1s implies a potential issue
+              seemsUnsatisfied = seemsUnsatisfied || userResponse.startsWith("n");
+            }
+            // Keyword-based fallback
+            if (!seemsUnsatisfied) {
+              seemsUnsatisfied = /(\bno\b|\bnot\b|difficult|problem|issue|concern|worry|stress|struggl|challeng)/i.test(userResponse);
+            }
+
+            const aiTextRaw = aiResponse.response || '';
+            const aiText = aiTextRaw.trim();
+            const aiAskedQuestion = /\?/i.test(aiText);
+            const askedMoveOn = /(move (on|to the next)|next question|continue|proceed|ready to move|go ahead to|let'?s move on)/i.test(aiText);
+            const askedFollowUpDirect = /(\bwhat\b|\bhow\b|could you\b|would you\b|tell me more\b|share more\b|feel free to share|i'?m here to listen|i’'m here to listen|i’'m here to listen|i’m here to listen|if (you('|’)re|you\'re) comfortable|open to sharing|on your mind\b|happy to listen|want to talk more)/i.test(aiText);
+            const askedFollowUpSanitized = /(share more|tell me more|i'?m here to listen|if (you('|’)re|you\'re) comfortable|feel free to share|open to sharing|on your mind|happy to listen)/i.test(sanitizeAssistantText(aiText));
+            const askedFollowUp = askedFollowUpDirect || askedFollowUpSanitized;
 
             if (seemsUnsatisfied) {
-              if (aiAskedQuestion) {
-                // Let the AI's question stand; decide which state to wait for
-                if (askedMoveOn) {
-                  setWaitingForConfirmation(true);
-                } else {
-                  setWaitingForFollowUp(true);
-                }
+              if (askedMoveOn) {
+                setWaitingForConfirmation(true);
+              } else if (aiAskedQuestion || askedFollowUp) {
+                setWaitingForFollowUp(true);
               } else {
                 addMessage("assistant", "I hear that this is challenging for you. What do you think would help improve this situation, or is there anything specific we could do to support you better?");
                 setWaitingForFollowUp(true);
               }
             } else {
-              if (aiAskedQuestion) {
-                // If AI already prompted to move on, just wait for confirmation
-                if (askedMoveOn) {
-                  setWaitingForConfirmation(true);
-                } else if (askedFollowUp) {
-                  setWaitingForFollowUp(true);
-                } else {
-                  setWaitingForConfirmation(true);
-                }
+              if (askedMoveOn) {
+                setWaitingForConfirmation(true);
+              } else if (aiAskedQuestion || askedFollowUp) {
+                setWaitingForFollowUp(true);
               } else {
                 addMessage("assistant", "That sounds really positive! Ready to move on to the next question?");
                 setWaitingForConfirmation(true);
