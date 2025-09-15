@@ -9,96 +9,96 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Chat Interface Color Palette */
-    --background: 249 250 251; /* #F9FAFB - Light gray background */
-    --foreground: 17 24 39; /* #111827 - Dark text */
-    --card: 255 255 255; /* #FFFFFF - White message bubbles */
-    --card-foreground: 17 24 39;
-    --popover: 255 255 255;
-    --popover-foreground: 17 24 39;
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
     
     /* AI Assistant - Primary Green */
-    --primary: 152 69% 35%; /* #10B981 - AI responses, positive states */
-    --primary-foreground: 255 255 255;
+    --primary: 160 84% 39%;
+    --primary-foreground: 0 0% 100%;
     
     /* User Messages - Blue */
-    --user-primary: 217 91% 60%; /* #3B82F6 - User messages */
-    --user-primary-foreground: 255 255 255;
+    --user-primary: 217 91% 60%;
+    --user-primary-foreground: 0 0% 100%;
     
-    --secondary: 249 250 251;
-    --secondary-foreground: 107 114 128; /* #6B7280 - Neutral gray */
-    --muted: 249 250 251;
-    --muted-foreground: 75 85 99; /* #4B5563 - Darker gray for better readability */
-    --accent: 249 250 251;
-    --accent-foreground: 17 24 39;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 215 16% 47%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
     
     /* Status Colors */
-    --alert: 239 68% 68%; /* #EF4444 - Alert red */
-    --alert-foreground: 255 255 255;
-    --info: 217 91% 60%; /* #3B82F6 - Info blue */
-    --info-foreground: 255 255 255;
+    --alert: 0 84% 60%;
+    --alert-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
     
-    --destructive: 239 68% 68%;
-    --destructive-foreground: 255 255 255;
-    --border: 229 84% 5%; /* Light border */
-    --input: 229 84% 5%;
-    --ring: 152 69% 35%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 160 84% 39%;
     
     --radius: 1rem; /* 16px rounded corners for chat bubbles */
     
-    --sidebar-background: 255 255 255;
-    --sidebar-foreground: 17 24 39;
-    --sidebar-primary: 17 24 39;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 249 250 251;
-    --sidebar-accent-foreground: 17 24 39;
-    --sidebar-border: 229 84% 5%;
-    --sidebar-ring: 152 69% 35%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 222 47% 11%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 160 84% 39%;
   }
 
   .dark {
     /* Dark Mode Chat Interface */
-    --background: 17 24 39; /* #111827 - Dark background */
-    --foreground: 249 250 251; /* #F9FAFB - Light text */
-    --card: 31 41 55; /* #1F2937 - Dark message bubbles */
-    --card-foreground: 249 250 251;
-    --popover: 31 41 55;
-    --popover-foreground: 249 250 251;
+    --background: 222 47% 11%; /* #111827 - Dark background */
+    --foreground: 210 20% 98%; /* #F9FAFB - Light text */
+    --card: 217 33% 17%; /* #1F2937 - Dark message bubbles */
+    --card-foreground: 210 20% 98%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 20% 98%;
     
     /* AI Assistant - Primary Green (same) */
-    --primary: 152 69% 35%; /* #10B981 */
-    --primary-foreground: 255 255 255;
+    --primary: 160 84% 39%; /* #10B981 */
+    --primary-foreground: 0 0% 100%;
     
     /* User Messages - Blue (same) */
     --user-primary: 217 91% 60%; /* #3B82F6 */
-    --user-primary-foreground: 255 255 255;
+    --user-primary-foreground: 0 0% 100%;
     
-    --secondary: 31 41 55;
-    --secondary-foreground: 156 163 175; /* #9CA3AF - Lighter gray for dark mode */
-    --muted: 31 41 55;
-    --muted-foreground: 156 163 175; /* #9CA3AF - Timestamps in dark mode */
-    --accent: 31 41 55;
-    --accent-foreground: 249 250 251;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 217 11% 65%; /* #9CA3AF - Lighter gray for dark mode */
+    --muted: 217 33% 17%;
+    --muted-foreground: 217 11% 65%; /* #9CA3AF - Timestamps in dark mode */
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 20% 98%;
     
     /* Status Colors (same) */
-    --alert: 239 68% 68%; /* #EF4444 */
-    --alert-foreground: 255 255 255;
+    --alert: 0 84% 60%; /* Red */
+    --alert-foreground: 0 0% 100%;
     --info: 217 91% 60%; /* #3B82F6 */
-    --info-foreground: 255 255 255;
+    --info-foreground: 0 0% 100%;
     
-    --destructive: 239 68% 68%;
-    --destructive-foreground: 255 255 255;
-    --border: 55 65 81; /* #374151 - Dark border */
-    --input: 55 65 81;
-    --ring: 152 69% 35%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 25% 27%; /* Dark border */
+    --input: 215 25% 27%;
+    --ring: 160 84% 39%;
     
-    --sidebar-background: 17 24 39;
-    --sidebar-foreground: 249 250 251;
-    --sidebar-primary: 17 24 39;
-    --sidebar-primary-foreground: 249 250 251;
-    --sidebar-accent: 31 41 55;
-    --sidebar-accent-foreground: 249 250 251;
-    --sidebar-border: 55 65 81;
-    --sidebar-ring: 152 69% 35%;
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 222 47% 11%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 215 25% 27%;
+    --sidebar-ring: 160 84% 39%;
   }
 }
 
