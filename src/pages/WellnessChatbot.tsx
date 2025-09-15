@@ -29,7 +29,7 @@ export const WellnessChatbot = () => {
   const { toast } = useToast();
   const { generateResponse, isLoading: aiLoading, error: aiError } = useAI();
 
-  const userName = "Rahul"; // This could be dynamic based on authentication
+  const userName = "Sarah"; // This could be dynamic based on authentication
 
   // Build conversation context for AI
   const getConversationContext = (): ConversationContext => ({
