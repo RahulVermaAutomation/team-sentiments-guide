@@ -340,42 +340,47 @@ export const WellnessChatbot = () => {
     if (waitingForFollowUp) {
       setWaitingForFollowUp(false);
       
-      // Do not call AI again here to avoid extra follow-up questions.
-      setIsTyping(false);
+      try {
+        const context = getConversationContext();
+        const currentMessages = [...messages, {
+          id: `temp_${Date.now()}`,
+          role: "user" as const,
+          content: message,
+          timestamp: new Date(),
+          type: "response" as const
+        }];
 
-      const importanceReason = (() => {
-        switch (questionPhase) {
-          case "question1":
-            return "Understanding what drives your satisfaction helps us align work and learning opportunities better for you.";
-          case "question2":
-            return "Being aware of personal factors helps us offer the right support and flexibility when needed.";
-          case "question3":
-            return "Insights on growth support guide us to improve coaching, mentorship, and resources for your development.";
-          case "question4":
-            return "Clarity on one-on-one rhythms helps ensure consistent feedback, alignment, and care.";
-          case "question5":
-            return "Your perspective on usefulness helps us make those conversations more impactful.";
-          default:
-            return "Your perspective helps us support you in meaningful and practical ways.";
-        }
-      })();
+        const aiResponse = await generateResponse(currentMessages, context, `${questionPhase}-followup`);
+        setIsTyping(false);
 
-      addMessage("assistant", `Thank you for sharing that, ${userName}. ${importanceReason}`);
+        // Ensure no further questions in follow-up acknowledgments
+        const rawText = sanitizeAssistantText(aiResponse.response);
+        const noQuestionText = rawText
+          .split(/(?<=[.!?])\s+/)
+          .filter(s => s && !s.trim().endsWith("?"))
+          .join(" ")
+          .trim() || rawText.replace(/\?+/g, "").trim();
 
-      setTimeout(() => {
-        setIsTyping(true);
+        addMessage("assistant", noQuestionText);
+
         setTimeout(() => {
-          setIsTyping(false);
-          if (questionPhase === "question5" || closeAfterFollowUp) {
-            addMessage("assistant", "Your feedback has been captured for further review. Thank you for your valuable time and input.");
-            setCloseAfterFollowUp(false);
-            setCurrentScreen("complete");
-          } else {
-            addMessage("assistant", "Your feedback has been captured for further review. Ready to move on to the next question?");
-            setWaitingForConfirmation(true);
-          }
-        }, 1500);
-      }, 1000);
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            if (questionPhase === "question5" || closeAfterFollowUp) {
+              addMessage("assistant", "Your feedback has been captured for further review. Thank you for your valuable time and input.");
+              setCloseAfterFollowUp(false);
+              setCurrentScreen("complete");
+            } else {
+              addMessage("assistant", "Your feedback has been captured for further review. Ready to move on to the next question?");
+              setWaitingForConfirmation(true);
+            }
+          }, 1500);
+        }, 1000);
+      } catch {
+        setIsTyping(false);
+        addMessage("assistant", `Thank you for sharing that, ${userName}.`);
+      }
 
       return;
     }
