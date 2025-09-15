@@ -23,6 +23,7 @@ export const WellnessChatbot = () => {
     oneOnOneHelpfulness: "",
   });
   const [additionalFeedback, setAdditionalFeedback] = useState<string | undefined>(undefined);
+  const [waitingForConfirmation, setWaitingForConfirmation] = useState(false);
   const { toast } = useToast();
   const { generateResponse, isLoading: aiLoading, error: aiError } = useAI();
 
@@ -149,6 +150,29 @@ export const WellnessChatbot = () => {
       setIsTyping(false);
       addMessage("assistant", aiResponse.response);
       
+      // After AI responds, ask for confirmation to proceed to next question
+      if (questionPhase !== "question5") {
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            addMessage("assistant", "Would you like to move on to the next question, or is there anything else you'd like to share about this topic?");
+            setWaitingForConfirmation(true);
+          }, 1500);
+        }, 1000);
+      } else {
+        // For question 5, wrap up and move to feedback after acknowledgement
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            addMessage("assistant", "Before we wrap up, is there anything else on your mind that you'd like to share? It could be anything - suggestions, concerns, positive feedback, or just thoughts about your work experience.");
+            setQuestionPhase("additional");
+            setCurrentScreen("feedback");
+          }, 2000);
+        }, 1500);
+      }
+      
     } catch (error) {
       // Fallback to original logic if AI fails
       setIsTyping(false);
@@ -185,6 +209,18 @@ export const WellnessChatbot = () => {
       }
       
       addMessage("assistant", responseText);
+      
+      // After fallback response, ask for confirmation to proceed to next question
+      if (questionPhase !== "question5") {
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            addMessage("assistant", "Would you like to move on to the next question, or is there anything else you'd like to share about this topic?");
+            setWaitingForConfirmation(true);
+          }, 1500);
+        }, 1000);
+      }
     }
   };
 
@@ -229,6 +265,62 @@ export const WellnessChatbot = () => {
   const handleChatMessage = async (message: string) => {
     addMessage("user", message);
     setIsTyping(true);
+    
+    // Handle confirmation to move to next question
+    if (waitingForConfirmation) {
+      const normalizedMessage = message.toLowerCase().trim();
+      const wantsToMoveOn = normalizedMessage.includes("next") || 
+                           normalizedMessage.includes("move") || 
+                           normalizedMessage.includes("continue") ||
+                           normalizedMessage.includes("yes") ||
+                           normalizedMessage === "ok";
+      
+      setWaitingForConfirmation(false);
+      setIsTyping(false);
+      
+      if (wantsToMoveOn) {
+        addMessage("assistant", "Great! Let's move on to the next question.");
+        setTimeout(() => {
+          moveToNextQuestion();
+        }, 1000);
+      } else {
+        // User wants to discuss more about current topic
+        try {
+          const context = getConversationContext();
+          const currentMessages = [...messages, { 
+            id: `temp_${Date.now()}`, 
+            role: "user" as const, 
+            content: message, 
+            timestamp: new Date() 
+          }];
+          
+          const aiResponse = await generateResponse(currentMessages, context, questionPhase);
+          addMessage("assistant", aiResponse.response);
+          
+          // Ask for confirmation again after responding
+          setTimeout(() => {
+            setIsTyping(true);
+            setTimeout(() => {
+              setIsTyping(false);
+              addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
+              setWaitingForConfirmation(true);
+            }, 1500);
+          }, 1000);
+          
+        } catch (error) {
+          addMessage("assistant", "I understand. Thank you for sharing more about that with me.");
+          setTimeout(() => {
+            setIsTyping(true);
+            setTimeout(() => {
+              setIsTyping(false);
+              addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
+              setWaitingForConfirmation(true);
+            }, 1500);
+          }, 1000);
+        }
+      }
+      return;
+    }
     
     try {
       // Get AI response to user's message
