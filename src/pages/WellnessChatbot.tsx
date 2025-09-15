@@ -318,28 +318,15 @@ export const WellnessChatbot = () => {
         setIsTyping(false);
         addMessage("assistant", aiResponse.response);
         
-        // After follow-up response, decide next prompt without duplicating questions
-        const aiText = aiResponse.response || '';
-        const aiAskedQuestion = aiText.includes('?');
-        const askedMoveOn = /(move (on|to the next)|next question|continue|proceed|ready to move)/i.test(aiText);
-        const askedFollowUp = /(what|how|could you|would you|tell me more|share more|help|support|improve)/i.test(aiText);
-
-        if (aiAskedQuestion) {
-          if (askedMoveOn) {
-            setWaitingForConfirmation(true);
-          } else {
-            setWaitingForFollowUp(true);
-          }
-        } else {
+        // After follow-up response, always appreciate and ask to move to next question
+        setTimeout(() => {
+          setIsTyping(true);
           setTimeout(() => {
-            setIsTyping(true);
-            setTimeout(() => {
-              setIsTyping(false);
-              addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
-              setWaitingForConfirmation(true);
-            }, 1500);
-          }, 1000);
-        }
+            setIsTyping(false);
+            addMessage("assistant", "Thank you for sharing that! Your feedback has been captured for further review. Ready to move on to the next question?");
+            setWaitingForConfirmation(true);
+          }, 1500);
+        }, 1000);
         
       } catch (error) {
         setIsTyping(false);
@@ -348,7 +335,7 @@ export const WellnessChatbot = () => {
           setIsTyping(true);
           setTimeout(() => {
             setIsTyping(false);
-            addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
+            addMessage("assistant", "Your feedback has been captured for further review. Ready to move on to the next question?");
             setWaitingForConfirmation(true);
           }, 1500);
         }, 1000);
