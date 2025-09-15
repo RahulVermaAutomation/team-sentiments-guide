@@ -119,12 +119,19 @@ export const WellnessChatbot = () => {
             responseText = "Thank you for participating anonymously. We will not save your personal information, but your responses will be used for team-level feedback to improve our wellness programs.";
             break;
           case "decline":
-            responseText = "Thank you for sharing your feedback. If you want to discuss more about the personal assistant, you can reach out to PSPersonal.Assistant@PS.com for more information.";
-            setCurrentScreen("complete");
-            return;
+            responseText = "Thank you for considering our request. I completely understand and respect your decision. If you ever want to discuss more about this personal assistant or have questions about our employee wellness initiatives, you can reach out to **PSPersonal.Assistant@PS.com** for more information. Take care, and remember that your well-being is important to us! 🌟";
+            break;
         }
         
         addMessage("assistant", responseText);
+        
+        // Handle decline case with 5-second delay
+        if (response === "decline") {
+          setTimeout(() => {
+            setCurrentScreen("complete");
+          }, 5000);
+          return;
+        }
         
         // After consent, start the wellness questions
         setTimeout(() => {
