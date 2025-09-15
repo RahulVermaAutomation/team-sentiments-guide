@@ -505,10 +505,11 @@ export const WellnessChatbot = () => {
   };
 
   const handleDecline = () => {
-    toast({
-      title: "No problem",
-      description: "You can still access wellness resources without sharing data. Contact your wellness team for alternative options.",
-    });
+    // Show empathetic closure message in chat and close after 5 seconds
+    addMessage("assistant", "Thank you for considering our request. I completely understand and respect your decision. If you ever want to discuss more about this personal assistant or have questions about our employee wellness initiatives, you can reach out to **PSPersonal.Assistant@PS.com** for more information. Take care, and remember that your well-being is important to us! 🌟");
+    setTimeout(() => {
+      setCurrentScreen("complete");
+    }, 5000);
   };
 
   const renderScreen = () => {
