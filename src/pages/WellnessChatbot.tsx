@@ -55,6 +55,30 @@ export const WellnessChatbot = () => {
     };
     setMessages(prev => [...prev, newMessage]);
   };
+  // Ensure AI responses don't mix transition to next question
+  const sanitizeAssistantText = (text: string): string => {
+    if (!text) return text;
+    const patterns = [
+      /(moving on to the next question[:,]?)/i,
+      /(move on to the next question[:,]?)/i,
+      /(moving on[:,]?)/i,
+      /(next question[:,]?)/i,
+      /(let'?s move on[:,]?)/i,
+      /(continue (to|with)[:,]?)/i,
+      /(now let'?s (talk|move)[:,]?)/i,
+    ];
+    let cutIndex = -1;
+    for (const p of patterns) {
+      const m = text.match(p);
+      if (m && m.index !== undefined) {
+        cutIndex = cutIndex === -1 ? m.index : Math.min(cutIndex, m.index);
+      }
+    }
+    let cleaned = cutIndex >= 0 ? text.slice(0, cutIndex) : text;
+    cleaned = cleaned.trim();
+    if (!cleaned) cleaned = "Thank you for sharing that.";
+    return cleaned;
+  };
 
   function startChatFlow() {
     setIsTyping(true);
@@ -149,7 +173,7 @@ export const WellnessChatbot = () => {
       const aiResponse = await generateResponse(currentMessages, context, questionPhase);
       
       setIsTyping(false);
-      addMessage("assistant", aiResponse.response);
+      addMessage("assistant", sanitizeAssistantText(aiResponse.response));
       
       // After AI responds, determine next action based on satisfaction level
       if (questionPhase !== "question5") {
@@ -368,7 +392,7 @@ export const WellnessChatbot = () => {
           }];
           
           const aiResponse = await generateResponse(currentMessages, context, questionPhase);
-          addMessage("assistant", aiResponse.response);
+          addMessage("assistant", sanitizeAssistantText(aiResponse.response));
           
           // Ask for confirmation again after responding
           setTimeout(() => {
@@ -408,7 +432,7 @@ export const WellnessChatbot = () => {
       const aiResponse = await generateResponse(currentMessages, context, questionPhase);
       
       setIsTyping(false);
-      addMessage("assistant", aiResponse.response);
+      addMessage("assistant", sanitizeAssistantText(aiResponse.response));
 
       // Move to next question after AI acknowledgment
       if (questionPhase !== "question5") {
