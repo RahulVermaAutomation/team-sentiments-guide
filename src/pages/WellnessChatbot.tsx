@@ -150,13 +150,38 @@ export const WellnessChatbot = () => {
       setIsTyping(false);
       addMessage("assistant", aiResponse.response);
       
-      // After AI responds, ask for confirmation to proceed to next question
+      // After AI responds, ask intelligent follow-up or confirmation
       if (questionPhase !== "question5") {
         setTimeout(() => {
           setIsTyping(true);
           setTimeout(() => {
             setIsTyping(false);
-            addMessage("assistant", "Would you like to move on to the next question, or is there anything else you'd like to share about this topic?");
+            
+            // Analyze the user's previous response to determine appropriate follow-up
+            const lastUserMessage = messages[messages.length - 2]?.content.toLowerCase() || "";
+            const currentQuestionResponses = questionResponses[questionPhase as keyof typeof questionResponses];
+            
+            // Check if user seems unsatisfied (low scores, negative keywords, or concerns)
+            const seemsUnsatisfied = (
+              (typeof currentQuestionResponses === 'string' && ['1', '2'].includes(currentQuestionResponses)) ||
+              lastUserMessage.includes('no') ||
+              lastUserMessage.includes('not') ||
+              lastUserMessage.includes('difficult') ||
+              lastUserMessage.includes('problem') ||
+              lastUserMessage.includes('issue') ||
+              lastUserMessage.includes('concern') ||
+              lastUserMessage.includes('worry') ||
+              lastUserMessage.includes('stress') ||
+              lastUserMessage.includes('struggle') ||
+              lastUserMessage.includes('challenge')
+            );
+            
+            if (seemsUnsatisfied) {
+              addMessage("assistant", "I hear that this is challenging for you. What do you think would help improve this situation, or is there anything specific we could do to support you better?");
+            } else {
+              addMessage("assistant", "That sounds really positive! Ready to move on to the next question?");
+            }
+            
             setWaitingForConfirmation(true);
           }, 1500);
         }, 1000);
@@ -210,13 +235,37 @@ export const WellnessChatbot = () => {
       
       addMessage("assistant", responseText);
       
-      // After fallback response, ask for confirmation to proceed to next question
+      // After fallback response, ask intelligent follow-up or confirmation
       if (questionPhase !== "question5") {
         setTimeout(() => {
           setIsTyping(true);
           setTimeout(() => {
             setIsTyping(false);
-            addMessage("assistant", "Would you like to move on to the next question, or is there anything else you'd like to share about this topic?");
+            
+            // Analyze the user's response for fallback logic too
+            const lastUserMessage = messages[messages.length - 1]?.content.toLowerCase() || "";
+            const currentQuestionResponses = questionResponses[questionPhase as keyof typeof questionResponses];
+            
+            const seemsUnsatisfied = (
+              (typeof currentQuestionResponses === 'string' && ['1', '2'].includes(currentQuestionResponses)) ||
+              lastUserMessage.includes('no') ||
+              lastUserMessage.includes('not') ||
+              lastUserMessage.includes('difficult') ||
+              lastUserMessage.includes('problem') ||
+              lastUserMessage.includes('issue') ||
+              lastUserMessage.includes('concern') ||
+              lastUserMessage.includes('worry') ||
+              lastUserMessage.includes('stress') ||
+              lastUserMessage.includes('struggle') ||
+              lastUserMessage.includes('challenge')
+            );
+            
+            if (seemsUnsatisfied) {
+              addMessage("assistant", "I hear that this is challenging for you. What do you think would help improve this situation, or is there anything specific we could do to support you better?");
+            } else {
+              addMessage("assistant", "That sounds really positive! Ready to move on to the next question?");
+            }
+            
             setWaitingForConfirmation(true);
           }, 1500);
         }, 1000);
