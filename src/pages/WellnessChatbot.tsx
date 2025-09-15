@@ -157,13 +157,11 @@ export const WellnessChatbot = () => {
           setIsTyping(true);
           setTimeout(() => {
             setIsTyping(false);
-            
-            // Analyze the user's response to determine satisfaction level
+
+            // Analyze satisfaction and whether AI already asked a question
             const userResponse = response.toLowerCase();
             const isLowScore = ['1', '2'].includes(response);
-            
-            // Check if user seems unsatisfied (low scores or negative keywords)
-            const seemsUnsatisfied = isLowScore || 
+            const seemsUnsatisfied = isLowScore ||
               userResponse.includes('no') ||
               userResponse.includes('not') ||
               userResponse.includes('difficult') ||
@@ -174,15 +172,38 @@ export const WellnessChatbot = () => {
               userResponse.includes('stress') ||
               userResponse.includes('struggle') ||
               userResponse.includes('challenge');
-            
+
+            const aiText = aiResponse.response || '';
+            const aiAskedQuestion = aiText.includes('?');
+            const askedMoveOn = /(move (on|to the next)|next question|continue|proceed|ready to move)/i.test(aiText);
+            const askedFollowUp = /(what|how|could you|would you|tell me more|share more|help|support|improve)/i.test(aiText);
+
             if (seemsUnsatisfied) {
-              // Ask follow-up question and wait for response
-              addMessage("assistant", "I hear that this is challenging for you. What do you think would help improve this situation, or is there anything specific we could do to support you better?");
-              setWaitingForFollowUp(true);
+              if (aiAskedQuestion) {
+                // Let the AI's question stand; decide which state to wait for
+                if (askedMoveOn) {
+                  setWaitingForConfirmation(true);
+                } else {
+                  setWaitingForFollowUp(true);
+                }
+              } else {
+                addMessage("assistant", "I hear that this is challenging for you. What do you think would help improve this situation, or is there anything specific we could do to support you better?");
+                setWaitingForFollowUp(true);
+              }
             } else {
-              // User seems satisfied, ask to move to next question
-              addMessage("assistant", "That sounds really positive! Ready to move on to the next question?");
-              setWaitingForConfirmation(true);
+              if (aiAskedQuestion) {
+                // If AI already prompted to move on, just wait for confirmation
+                if (askedMoveOn) {
+                  setWaitingForConfirmation(true);
+                } else if (askedFollowUp) {
+                  setWaitingForFollowUp(true);
+                } else {
+                  setWaitingForConfirmation(true);
+                }
+              } else {
+                addMessage("assistant", "That sounds really positive! Ready to move on to the next question?");
+                setWaitingForConfirmation(true);
+              }
             }
           }, 1500);
         }, 1000);
@@ -297,15 +318,28 @@ export const WellnessChatbot = () => {
         setIsTyping(false);
         addMessage("assistant", aiResponse.response);
         
-        // After follow-up response, ask if they want to move to next question
-        setTimeout(() => {
-          setIsTyping(true);
-          setTimeout(() => {
-            setIsTyping(false);
-            addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
+        // After follow-up response, decide next prompt without duplicating questions
+        const aiText = aiResponse.response || '';
+        const aiAskedQuestion = aiText.includes('?');
+        const askedMoveOn = /(move (on|to the next)|next question|continue|proceed|ready to move)/i.test(aiText);
+        const askedFollowUp = /(what|how|could you|would you|tell me more|share more|help|support|improve)/i.test(aiText);
+
+        if (aiAskedQuestion) {
+          if (askedMoveOn) {
             setWaitingForConfirmation(true);
-          }, 1500);
-        }, 1000);
+          } else {
+            setWaitingForFollowUp(true);
+          }
+        } else {
+          setTimeout(() => {
+            setIsTyping(true);
+            setTimeout(() => {
+              setIsTyping(false);
+              addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
+              setWaitingForConfirmation(true);
+            }, 1500);
+          }, 1000);
+        }
         
       } catch (error) {
         setIsTyping(false);
