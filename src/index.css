@@ -32,8 +32,6 @@ All colors MUST be HSL.
     --accent-foreground: 17 24 39;
     
     /* Status Colors */
-    --warning: 251 146% 47%; /* #F59E0B - Warning yellow */
-    --warning-foreground: 255 255 255;
     --alert: 239 68% 68%; /* #EF4444 - Alert red */
     --alert-foreground: 255 255 255;
     --info: 217 91% 60%; /* #3B82F6 - Info blue */
@@ -82,8 +80,6 @@ All colors MUST be HSL.
     --accent-foreground: 249 250 251;
     
     /* Status Colors (same) */
-    --warning: 251 146% 47%; /* #F59E0B */
-    --warning-foreground: 17 24 39;
     --alert: 239 68% 68%; /* #EF4444 */
     --alert-foreground: 255 255 255;
     --info: 217 91% 60%; /* #3B82F6 */
