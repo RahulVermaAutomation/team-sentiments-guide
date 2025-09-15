@@ -233,13 +233,14 @@ export const WellnessChatbot = () => {
           }, 1500);
         }, 1000);
       } else {
-        // For question 5, ensure we wait for follow-up (if any) before closing
+        // For question 5, ensure we wait for ANY AI follow-up (if any) before closing
         const aiText = aiResponse.response || '';
         const aiAskedQuestion = aiText.includes('?');
         const askedMoveOn = /(move (on|to the next)|next question|continue|proceed|ready to move)/i.test(aiText);
         const askedFollowUp = /(what|how|could you|would you|tell me more|share more|help|support|improve)/i.test(aiText);
 
-        if (aiAskedQuestion && !askedMoveOn && askedFollowUp) {
+        // If AI asked a question (of any kind) that is not a navigation prompt, wait for the employee's reply
+        if (aiAskedQuestion && !askedMoveOn) {
           setWaitingForFollowUp(true);
           setCloseAfterFollowUp(true);
         } else {
