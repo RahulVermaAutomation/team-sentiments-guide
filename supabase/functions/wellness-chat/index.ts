@@ -61,12 +61,12 @@ Remember: You're having a caring conversation, not conducting a formal interview
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-5-mini-2025-08-07',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages
         ],
-        max_completion_tokens: 100,
+        max_tokens: 100,
         temperature: 0.7,
       }),
     });
