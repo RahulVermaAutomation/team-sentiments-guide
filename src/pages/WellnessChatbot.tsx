@@ -5,17 +5,8 @@ import { ConsentScreen } from "@/components/screens/ConsentScreen";
 import { ChatInterface } from "@/components/ChatInterface";
 import { FeedbackScreen } from "@/components/screens/FeedbackScreen";
 import { useToast } from "@/hooks/use-toast";
-
-interface Message {
-  id: string;
-  role: "assistant" | "user";
-  content: string;
-  timestamp: Date;
-  type?: "text" | "question" | "response";
-}
-
-type Screen = "welcome" | "privacy" | "consent" | "chat" | "feedback" | "complete";
-type QuestionPhase = "welcome" | "consent" | "question1" | "question2" | "question3" | "question4" | "question5" | "additional" | "complete";
+import { useAI } from "@/hooks/useAI";
+import { Message, ConversationContext, QuestionPhase, Screen } from "@/types/conversation";
 
 export const WellnessChatbot = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("chat");
@@ -33,8 +24,18 @@ export const WellnessChatbot = () => {
   });
   const [additionalFeedback, setAdditionalFeedback] = useState<string | undefined>(undefined);
   const { toast } = useToast();
+  const { generateResponse, isLoading: aiLoading, error: aiError } = useAI();
 
   const userName = "Rahul"; // This could be dynamic based on authentication
+
+  // Build conversation context for AI
+  const getConversationContext = (): ConversationContext => ({
+    userName,
+    questionResponses,
+    currentPhase: questionPhase,
+    consentGiven: questionPhase === "consent" ? "pending" : "given",
+    additionalFeedback
+  });
 
   // Initialize chat flow on component mount
   useEffect(() => {
@@ -71,13 +72,13 @@ export const WellnessChatbot = () => {
     }, 1000);
   }
 
-  const handleQuestionResponse = (response: string) => {
+  const handleQuestionResponse = async (response: string) => {
     // Add user response to chat
     addMessage("user", response, "response");
     setShowResponseOptions(false);
     setIsTyping(true);
 
-    // Handle consent responses
+    // Handle consent responses with static responses for now
     if (questionPhase === "consent") {
       setTimeout(() => {
         setIsTyping(false);
@@ -113,60 +114,78 @@ export const WellnessChatbot = () => {
       return;
     }
 
-    // AI responds based on user input and asks for more details
-    setTimeout(() => {
+    // Update question responses
+    switch (questionPhase) {
+      case "question1":
+        setQuestionResponses(prev => ({ ...prev, workSatisfaction: response }));
+        break;
+      case "question2":
+        setQuestionResponses(prev => ({ ...prev, personalConcerns: response }));
+        break;
+      case "question3":
+        setQuestionResponses(prev => ({ ...prev, growthMetrics: response }));
+        break;
+      case "question4":
+        setQuestionResponses(prev => ({ ...prev, oneOnOneFrequency: response }));
+        break;
+      case "question5":
+        setQuestionResponses(prev => ({ ...prev, oneOnOneHelpfulness: response }));
+        break;
+    }
+
+    // Use AI to generate empathetic response based on user's answer
+    try {
+      const context = getConversationContext();
+      const currentMessages = [...messages, { 
+        id: `temp_${Date.now()}`, 
+        role: "user" as const, 
+        content: response, 
+        timestamp: new Date(),
+        type: "response" as const
+      }];
+      
+      const aiResponse = await generateResponse(currentMessages, context, questionPhase);
+      
+      setIsTyping(false);
+      addMessage("assistant", aiResponse.response);
+      
+    } catch (error) {
+      // Fallback to original logic if AI fails
       setIsTyping(false);
       let responseText = "";
       
       switch (questionPhase) {
         case "question1":
-          setQuestionResponses(prev => ({ ...prev, workSatisfaction: response }));
           responseText = parseInt(response) >= 4 
             ? "That's fantastic! What aspects of your work or learning opportunities do you find most fulfilling?"
             : parseInt(response) === 3
             ? "That sounds like a balanced perspective. What might make it even better?"
             : "Thank you for sharing that with me. That must be challenging. What do you think would help improve things?";
           break;
-
         case "question2":
-          setQuestionResponses(prev => ({ ...prev, personalConcerns: response }));
           responseText = response === "yes" 
             ? "I appreciate you trusting me with that. Is there anything specific that might help, or would you prefer we focus on work-related topics?"
             : "That's good to hear. It's great when personal life feels stable.";
           break;
-
         case "question3":
-          setQuestionResponses(prev => ({ ...prev, growthMetrics: response }));
           responseText = parseInt(response) >= 4 
             ? "That's excellent! Having that support makes such a difference. What kind of support has been most helpful?"
             : parseInt(response) === 3
             ? "It sounds like there's some support there. What additional support would be most valuable?"
             : "That's tough. Growth support is so important. What would ideal support look like for you?";
           break;
-
         case "question4":
-          setQuestionResponses(prev => ({ ...prev, oneOnOneFrequency: response }));
           responseText = response === "yes" 
             ? "That's great to hear! Regular one-on-ones are so important for staying connected."
             : "I understand. Regular check-ins can be challenging to maintain.";
           break;
-
         case "question5":
-          setQuestionResponses(prev => ({ ...prev, oneOnOneHelpfulness: response }));
           responseText = `Thank you so much for sharing all of that with me, ${userName}. Your insights are really valuable.`;
           break;
       }
       
       addMessage("assistant", responseText);
-      
-      // Wait for user input after follow-up question
-      if (questionPhase !== "question5") {
-        // Don't move to next question automatically - wait for user input
-      } else {
-        // After question 5, wait for user's free-text response before wrapping up
-        // Do not auto-advance here; handle wrap-up in handleChatMessage
-      }
-    }, 1500);
+    }
   };
 
   const moveToNextQuestion = () => {
@@ -207,14 +226,26 @@ export const WellnessChatbot = () => {
     }, 1500);
   };
 
-  const handleChatMessage = (message: string) => {
+  const handleChatMessage = async (message: string) => {
     addMessage("user", message);
     setIsTyping(true);
     
-    setTimeout(() => {
+    try {
+      // Get AI response to user's message
+      const context = getConversationContext();
+      const currentMessages = [...messages, { 
+        id: `temp_${Date.now()}`, 
+        role: "user" as const, 
+        content: message, 
+        timestamp: new Date() 
+      }];
+      
+      const aiResponse = await generateResponse(currentMessages, context, questionPhase);
+      
       setIsTyping(false);
-      addMessage("assistant", "Thanks for sharing. I have captured your feedback. I would like to ask another question to probe further.");
+      addMessage("assistant", aiResponse.response);
 
+      // Move to next question after AI acknowledgment
       if (questionPhase !== "question5") {
         setTimeout(() => {
           moveToNextQuestion();
@@ -231,7 +262,17 @@ export const WellnessChatbot = () => {
           }, 2000);
         }, 1500);
       }
-    }, 1500);
+    } catch (error) {
+      setIsTyping(false);
+      addMessage("assistant", "Thank you for sharing that with me. Your feedback is valuable and helps us understand your experience better.");
+      
+      // Continue with normal flow even if AI fails
+      if (questionPhase !== "question5") {
+        setTimeout(() => {
+          moveToNextQuestion();
+        }, 1500);
+      }
+    }
   };
 
   const handleFeedbackSubmit = (feedback?: string) => {
