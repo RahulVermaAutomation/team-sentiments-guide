@@ -159,11 +159,9 @@ export const WellnessChatbot = () => {
       
       addMessage("assistant", responseText);
       
-      // Move directly to next question after response
+      // Wait for user input after follow-up question
       if (questionPhase !== "question5") {
-        setTimeout(() => {
-          moveToNextQuestion();
-        }, 2000);
+        // Don't move to next question automatically - wait for user input
       } else {
         // After question 5, go to feedback
         setTimeout(() => {
@@ -221,10 +219,10 @@ export const WellnessChatbot = () => {
     addMessage("user", message);
     setIsTyping(true);
     
-    // AI acknowledges and asks if user wants to continue
+    // AI acknowledges and moves to next question
     setTimeout(() => {
       setIsTyping(false);
-      addMessage("assistant", `Thank you for sharing that, ${userName}. I really appreciate your openness. Would you like to move on to the next question now?`);
+      addMessage("assistant", "Thanks for sharing. I have captured your feedback. I would like to ask another question to probe further.");
       
       setTimeout(() => {
         moveToNextQuestion();
