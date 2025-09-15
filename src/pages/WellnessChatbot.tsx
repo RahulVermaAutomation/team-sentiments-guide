@@ -280,10 +280,10 @@ export const WellnessChatbot = () => {
             <div className="w-full max-w-lg">
               <div className="bot-message text-center">
                 <div className="text-4xl mb-4 animate-bounceGentle">🎉</div>
-                <h1 className="text-2xl font-semibold text-foreground mb-4">
+                <h1 className="text-2xl font-semibold text-foreground mb-6">
                   All Done! Thank You!
                 </h1>
-                <p className="text-base text-muted-foreground">
+                <p className="text-base text-foreground leading-relaxed">
                   Your responses help us better understand and support your wellness journey. 
                   We truly appreciate your time and honesty.
                 </p>
