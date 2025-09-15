@@ -159,15 +159,11 @@ export const WellnessChatbot = () => {
       
       addMessage("assistant", responseText);
       
-      // Allow user to add more information before moving to next question
+      // Move directly to next question after response
       if (questionPhase !== "question5") {
         setTimeout(() => {
-          setIsTyping(true);
-          setTimeout(() => {
-            setIsTyping(false);
-            addMessage("assistant", "Is there anything else you'd like to add about this, or shall we move on to the next question?");
-          }, 1500);
-        }, 1000);
+          moveToNextQuestion();
+        }, 2000);
       } else {
         // After question 5, go to feedback
         setTimeout(() => {
