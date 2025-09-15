@@ -165,7 +165,11 @@ export const ChatInterface = ({
               {message.role === "assistant" ? "🤖" : "👤"}
             </div>
             <div className={`message-bubble ${message.role === "assistant" ? "ai-bubble" : "user-bubble"}`}>
-              <p className="message-content">{message.content}</p>
+              <div className="message-content">
+                {message.content.split("\n\n").map((para, idx) => (
+                  <p key={idx} className="message-content mb-3 last:mb-0">{para}</p>
+                ))}
+              </div>
               <div className="message-timestamp">
                 {formatTimestamp(message.timestamp)}
               </div>
