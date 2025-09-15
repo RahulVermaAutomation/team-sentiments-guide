@@ -131,7 +131,7 @@ export const WellnessChatbot = () => {
           setIsTyping(true);
           setTimeout(() => {
             setIsTyping(false);
-            addMessage("assistant", "Now let's begin! I'm here to have a friendly chat and learn a bit about your work experience. I'd love to know - how satisfied are you feeling with your current work and the learning opportunities you have? I'm thinking on a scale where 1 would be really dissatisfied and 5 would be very satisfied.");
+            addMessage("assistant", "Now let's begin! I'm here to have a friendly chat and learn a bit about your work experience. How are you feeling in your current project work and are you getting enough learning opportunities? I'm thinking on a scale where 1 would be really dissatisfied and 5 would be very satisfied.");
             setQuestionPhase("question1");
             setCurrentQuestionType("scale");
             setShowResponseOptions(true);
@@ -302,28 +302,28 @@ export const WellnessChatbot = () => {
       
       switch (questionPhase) {
         case "question1":
-          addMessage("assistant", "I want to make sure you're doing well overall. Do you have any personal concerns that might be affecting how you feel at work? It's completely okay if you'd rather not share details.");
+          addMessage("assistant", "I want to make sure you're doing well overall. Do you have any concerns that might be affecting how you feel at work? Remember it's completely okay. It's a Yes or No question.");
           setQuestionPhase("question2");
           setCurrentQuestionType("yesno");
           setShowResponseOptions(true);
           break;
           
         case "question2":
-          addMessage("assistant", "One more thing I'm curious about - how supported do you feel in achieving your career growth and development goals? Again, thinking 1 to 5, where 1 is not supported at all and 5 is fully supported.");
+          addMessage("assistant", "How well do you feel you have learned and developed in the last 6 months? On a scale 1 to 5.");
           setQuestionPhase("question3");
           setCurrentQuestionType("scale");
           setShowResponseOptions(true);
           break;
           
         case "question3":
-          addMessage("assistant", "Are your one-on-one meetings with your manager happening regularly?");
+          addMessage("assistant", "Are your one-on-one meetings with your People manager/Project Lead happening regularly? It's a Yes or No Question.");
           setQuestionPhase("question4");
           setCurrentQuestionType("yesno");
           setShowResponseOptions(true);
           break;
           
         case "question4":
-          addMessage("assistant", "How helpful do you find your one-on-one meetings with your manager? On a scale of 1 to 5, where 1 is not helpful at all and 5 is extremely helpful.");
+          addMessage("assistant", "How helpful do you find your one-on-one meetings with your People manager/Project Lead? On a scale of 1 to 5, where 1 is not helpful at all and 5 is extremely helpful.");
           setQuestionPhase("question5");
           setCurrentQuestionType("scale");
           setShowResponseOptions(true);
