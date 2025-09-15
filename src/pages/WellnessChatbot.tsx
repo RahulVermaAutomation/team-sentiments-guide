@@ -163,16 +163,8 @@ export const WellnessChatbot = () => {
       if (questionPhase !== "question5") {
         // Don't move to next question automatically - wait for user input
       } else {
-        // After question 5, go to feedback
-        setTimeout(() => {
-          setIsTyping(true);
-          setTimeout(() => {
-            setIsTyping(false);
-            addMessage("assistant", "Before we wrap up, is there anything else on your mind that you'd like to share? It could be anything - suggestions, concerns, positive feedback, or just thoughts about your work experience.");
-            setQuestionPhase("additional");
-            setCurrentScreen("feedback");
-          }, 2000);
-        }, 1500);
+        // After question 5, wait for user's free-text response before wrapping up
+        // Do not auto-advance here; handle wrap-up in handleChatMessage
       }
     }, 1500);
   };
@@ -219,14 +211,26 @@ export const WellnessChatbot = () => {
     addMessage("user", message);
     setIsTyping(true);
     
-    // AI acknowledges and moves to next question
     setTimeout(() => {
       setIsTyping(false);
       addMessage("assistant", "Thanks for sharing. I have captured your feedback. I would like to ask another question to probe further.");
-      
-      setTimeout(() => {
-        moveToNextQuestion();
-      }, 1500);
+
+      if (questionPhase !== "question5") {
+        setTimeout(() => {
+          moveToNextQuestion();
+        }, 1500);
+      } else {
+        // For question 5, wrap up and move to feedback after acknowledgement
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            addMessage("assistant", "Before we wrap up, is there anything else on your mind that you'd like to share? It could be anything - suggestions, concerns, positive feedback, or just thoughts about your work experience.");
+            setQuestionPhase("additional");
+            setCurrentScreen("feedback");
+          }, 2000);
+        }, 1500);
+      }
     }, 1500);
   };
 
