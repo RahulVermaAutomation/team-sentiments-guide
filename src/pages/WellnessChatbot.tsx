@@ -305,41 +305,37 @@ export const WellnessChatbot = () => {
     if (waitingForFollowUp) {
       setWaitingForFollowUp(false);
       
-      try {
-        const context = getConversationContext();
-        const currentMessages = [...messages, { 
-          id: `temp_${Date.now()}`, 
-          role: "user" as const, 
-          content: message, 
-          timestamp: new Date() 
-        }];
-        
-        const aiResponse = await generateResponse(currentMessages, context, questionPhase);
-        setIsTyping(false);
-        addMessage("assistant", aiResponse.response);
-        
-        // After follow-up response, always appreciate and ask to move to next question
+      // Do not call AI again here to avoid extra follow-up questions.
+      setIsTyping(false);
+
+      const importanceReason = (() => {
+        switch (questionPhase) {
+          case "question1":
+            return "Understanding what drives your satisfaction helps us align work and learning opportunities better for you.";
+          case "question2":
+            return "Being aware of personal factors helps us offer the right support and flexibility when needed.";
+          case "question3":
+            return "Insights on growth support guide us to improve coaching, mentorship, and resources for your development.";
+          case "question4":
+            return "Clarity on one-on-one rhythms helps ensure consistent feedback, alignment, and care.";
+          case "question5":
+            return "Your perspective on usefulness helps us make those conversations more impactful.";
+          default:
+            return "Your perspective helps us support you in meaningful and practical ways.";
+        }
+      })();
+
+      addMessage("assistant", `Thank you for sharing that, ${userName}. ${importanceReason}`);
+
+      setTimeout(() => {
+        setIsTyping(true);
         setTimeout(() => {
-          setIsTyping(true);
-          setTimeout(() => {
-            setIsTyping(false);
-            addMessage("assistant", "Thank you for sharing that! Your feedback has been captured for further review. Ready to move on to the next question?");
-            setWaitingForConfirmation(true);
-          }, 1500);
-        }, 1000);
-        
-      } catch (error) {
-        setIsTyping(false);
-        addMessage("assistant", "I understand. Thank you for sharing more about that with me.");
-        setTimeout(() => {
-          setIsTyping(true);
-          setTimeout(() => {
-            setIsTyping(false);
-            addMessage("assistant", "Your feedback has been captured for further review. Ready to move on to the next question?");
-            setWaitingForConfirmation(true);
-          }, 1500);
-        }, 1000);
-      }
+          setIsTyping(false);
+          addMessage("assistant", "Your feedback has been captured for further review. Ready to move on to the next question?");
+          setWaitingForConfirmation(true);
+        }, 1500);
+      }, 1000);
+
       return;
     }
     
