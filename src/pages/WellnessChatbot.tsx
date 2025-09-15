@@ -24,6 +24,7 @@ export const WellnessChatbot = () => {
   });
   const [additionalFeedback, setAdditionalFeedback] = useState<string | undefined>(undefined);
   const [waitingForConfirmation, setWaitingForConfirmation] = useState(false);
+  const [waitingForFollowUp, setWaitingForFollowUp] = useState(false);
   const { toast } = useToast();
   const { generateResponse, isLoading: aiLoading, error: aiError } = useAI();
 
@@ -150,8 +151,43 @@ export const WellnessChatbot = () => {
       setIsTyping(false);
       addMessage("assistant", aiResponse.response);
       
-      // For question 5, wrap up and move to feedback after acknowledgement
-      if (questionPhase === "question5") {
+      // After AI responds, determine next action based on satisfaction level
+      if (questionPhase !== "question5") {
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            
+            // Analyze the user's response to determine satisfaction level
+            const userResponse = response.toLowerCase();
+            const isLowScore = ['1', '2'].includes(response);
+            
+            // Check if user seems unsatisfied (low scores or negative keywords)
+            const seemsUnsatisfied = isLowScore || 
+              userResponse.includes('no') ||
+              userResponse.includes('not') ||
+              userResponse.includes('difficult') ||
+              userResponse.includes('problem') ||
+              userResponse.includes('issue') ||
+              userResponse.includes('concern') ||
+              userResponse.includes('worry') ||
+              userResponse.includes('stress') ||
+              userResponse.includes('struggle') ||
+              userResponse.includes('challenge');
+            
+            if (seemsUnsatisfied) {
+              // Ask follow-up question and wait for response
+              addMessage("assistant", "I hear that this is challenging for you. What do you think would help improve this situation, or is there anything specific we could do to support you better?");
+              setWaitingForFollowUp(true);
+            } else {
+              // User seems satisfied, ask to move to next question
+              addMessage("assistant", "That sounds really positive! Ready to move on to the next question?");
+              setWaitingForConfirmation(true);
+            }
+          }, 1500);
+        }, 1000);
+      } else {
+        // For question 5, wrap up and move to feedback after acknowledgement
         setTimeout(() => {
           setIsTyping(true);
           setTimeout(() => {
@@ -243,6 +279,48 @@ export const WellnessChatbot = () => {
   const handleChatMessage = async (message: string) => {
     addMessage("user", message);
     setIsTyping(true);
+    
+    // Handle follow-up question responses
+    if (waitingForFollowUp) {
+      setWaitingForFollowUp(false);
+      
+      try {
+        const context = getConversationContext();
+        const currentMessages = [...messages, { 
+          id: `temp_${Date.now()}`, 
+          role: "user" as const, 
+          content: message, 
+          timestamp: new Date() 
+        }];
+        
+        const aiResponse = await generateResponse(currentMessages, context, questionPhase);
+        setIsTyping(false);
+        addMessage("assistant", aiResponse.response);
+        
+        // After follow-up response, ask if they want to move to next question
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
+            setWaitingForConfirmation(true);
+          }, 1500);
+        }, 1000);
+        
+      } catch (error) {
+        setIsTyping(false);
+        addMessage("assistant", "I understand. Thank you for sharing more about that with me.");
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
+            setWaitingForConfirmation(true);
+          }, 1500);
+        }, 1000);
+      }
+      return;
+    }
     
     // Handle confirmation to move to next question
     if (waitingForConfirmation) {
