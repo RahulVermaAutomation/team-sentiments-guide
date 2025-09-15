@@ -25,6 +25,7 @@ export const WellnessChatbot = () => {
   const [additionalFeedback, setAdditionalFeedback] = useState<string | undefined>(undefined);
   const [waitingForConfirmation, setWaitingForConfirmation] = useState(false);
   const [waitingForFollowUp, setWaitingForFollowUp] = useState(false);
+  const [closeAfterFollowUp, setCloseAfterFollowUp] = useState(false);
   const { toast } = useToast();
   const { generateResponse, isLoading: aiLoading, error: aiError } = useAI();
 
@@ -232,16 +233,25 @@ export const WellnessChatbot = () => {
           }, 1500);
         }, 1000);
       } else {
-        // For question 5, wrap up and move to feedback after acknowledgement
-        setTimeout(() => {
-          setIsTyping(true);
+        // For question 5, ensure we wait for follow-up (if any) before closing
+        const aiText = aiResponse.response || '';
+        const aiAskedQuestion = aiText.includes('?');
+        const askedMoveOn = /(move (on|to the next)|next question|continue|proceed|ready to move)/i.test(aiText);
+        const askedFollowUp = /(what|how|could you|would you|tell me more|share more|help|support|improve)/i.test(aiText);
+
+        if (aiAskedQuestion && !askedMoveOn && askedFollowUp) {
+          setWaitingForFollowUp(true);
+          setCloseAfterFollowUp(true);
+        } else {
           setTimeout(() => {
-            setIsTyping(false);
-            addMessage("assistant", "Before we wrap up, is there anything else on your mind that you'd like to share? It could be anything - suggestions, concerns, positive feedback, or just thoughts about your work experience.");
-            setQuestionPhase("additional");
-            setCurrentScreen("feedback");
-          }, 2000);
-        }, 1500);
+            setIsTyping(true);
+            setTimeout(() => {
+              setIsTyping(false);
+              addMessage("assistant", "Thank you for your valuable time and input. Your feedback has been captured for further review.");
+              setCurrentScreen("complete");
+            }, 2000);
+          }, 1500);
+        }
       }
       
     } catch (error) {
@@ -355,8 +365,14 @@ export const WellnessChatbot = () => {
         setIsTyping(true);
         setTimeout(() => {
           setIsTyping(false);
-          addMessage("assistant", "Your feedback has been captured for further review. Ready to move on to the next question?");
-          setWaitingForConfirmation(true);
+          if (questionPhase === "question5" || closeAfterFollowUp) {
+            addMessage("assistant", "Your feedback has been captured for further review. Thank you for your valuable time and input.");
+            setCloseAfterFollowUp(false);
+            setCurrentScreen("complete");
+          } else {
+            addMessage("assistant", "Your feedback has been captured for further review. Ready to move on to the next question?");
+            setWaitingForConfirmation(true);
+          }
         }, 1500);
       }, 1000);
 
@@ -440,14 +456,13 @@ export const WellnessChatbot = () => {
           moveToNextQuestion();
         }, 1500);
       } else {
-        // For question 5, wrap up and move to feedback after acknowledgement
+        // For question 5, close the session after acknowledgement
         setTimeout(() => {
           setIsTyping(true);
           setTimeout(() => {
             setIsTyping(false);
-            addMessage("assistant", "Before we wrap up, is there anything else on your mind that you'd like to share? It could be anything - suggestions, concerns, positive feedback, or just thoughts about your work experience.");
-            setQuestionPhase("additional");
-            setCurrentScreen("feedback");
+            addMessage("assistant", "Thank you for your valuable time and input. Your feedback has been captured for further review.");
+            setCurrentScreen("complete");
           }, 2000);
         }, 1500);
       }
