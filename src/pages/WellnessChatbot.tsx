@@ -211,9 +211,15 @@ export const WellnessChatbot = () => {
               // Saying "no" to regular 1:1s implies a potential issue
               seemsUnsatisfied = seemsUnsatisfied || userResponse.startsWith("n");
             }
-            // Keyword-based fallback
+            // Keyword-based fallback (but exclude "no" for question2 since it means no concerns)
             if (!seemsUnsatisfied) {
-              seemsUnsatisfied = /(\bno\b|\bnot\b|difficult|problem|issue|concern|worry|stress|struggl|challeng)/i.test(userResponse);
+              if (questionPhase === "question2") {
+                // For question2, "no" means no concerns (positive), so only check for negative keywords
+                seemsUnsatisfied = /(difficult|problem|issue|concern|worry|stress|struggl|challeng)/i.test(userResponse);
+              } else {
+                // For other questions, include "no" as potentially negative
+                seemsUnsatisfied = /(\bno\b|\bnot\b|difficult|problem|issue|concern|worry|stress|struggl|challeng)/i.test(userResponse);
+              }
             }
 
             const aiTextRaw = aiResponse.response || '';
