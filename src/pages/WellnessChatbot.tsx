@@ -6,6 +6,7 @@ import { ChatInterface } from "@/components/ChatInterface";
 import { FeedbackScreen } from "@/components/screens/FeedbackScreen";
 import { useToast } from "@/hooks/use-toast";
 import { useAI } from "@/hooks/useAI";
+import { aiService } from "@/services/aiService";
 import { Message, ConversationContext, QuestionPhase, Screen } from "@/types/conversation";
 
 export const WellnessChatbot = () => {
@@ -26,6 +27,8 @@ export const WellnessChatbot = () => {
   const [waitingForConfirmation, setWaitingForConfirmation] = useState(false);
   const [waitingForFollowUp, setWaitingForFollowUp] = useState(false);
   const [closeAfterFollowUp, setCloseAfterFollowUp] = useState(false);
+  const [nextQuestionAttempts, setNextQuestionAttempts] = useState<Record<string, number>>({});
+  const [waitingForExitConfirmation, setWaitingForExitConfirmation] = useState(false);
   const { toast } = useToast();
   const { generateResponse, isLoading: aiLoading, error: aiError } = useAI();
 
@@ -403,49 +406,109 @@ export const WellnessChatbot = () => {
                            normalizedMessage.includes("continue") ||
                            normalizedMessage.includes("yes") ||
                            normalizedMessage === "ok";
+
+      const currentAttempts = nextQuestionAttempts[questionPhase] || 0;
       
       setWaitingForConfirmation(false);
       setIsTyping(false);
+
+      // Special handling for exit confirmation after 2 attempts
+      if (waitingForExitConfirmation) {
+        setWaitingForExitConfirmation(false);
+        
+        if (normalizedMessage.includes("yes") || normalizedMessage === "y") {
+          // User wants to end the chat
+          addMessage("assistant", "Thank you for your valuable time and honest feedback. Your insights have been captured and will help us improve our workplace environment. Take care! 🌟");
+          setTimeout(() => {
+            setCurrentScreen("complete");
+          }, 3000);
+          return;
+        } else {
+          // User wants to continue, reset attempts and move on
+          setNextQuestionAttempts(prev => ({ ...prev, [questionPhase]: 0 }));
+          addMessage("assistant", "Thank you for your patience. Let's move on to the next question.");
+          setTimeout(() => {
+            moveToNextQuestion();
+          }, 1000);
+          return;
+        }
+      }
       
       if (wantsToMoveOn) {
+        // Reset attempts counter and move on
+        setNextQuestionAttempts(prev => ({ ...prev, [questionPhase]: 0 }));
         addMessage("assistant", "Great! Let's move on to the next question.");
         setTimeout(() => {
           moveToNextQuestion();
         }, 1000);
       } else {
-        // User wants to discuss more about current topic
-        try {
-          const context = getConversationContext();
-          const currentMessages = [...messages, { 
-            id: `temp_${Date.now()}`, 
-            role: "user" as const, 
-            content: message, 
-            timestamp: new Date() 
-          }];
-          
-          const aiResponse = await generateResponse(currentMessages, context, questionPhase);
-          addMessage("assistant", sanitizeAssistantText(aiResponse.response));
-          
-          // Ask for confirmation again after responding
-          setTimeout(() => {
+        // User wants to discuss more - track attempts and handle resistance
+        const updatedAttempts = currentAttempts + 1;
+        setNextQuestionAttempts(prev => ({ ...prev, [questionPhase]: updatedAttempts }));
+
+        if (updatedAttempts >= 2) {
+          // After 2 attempts, analyze sentiment and offer polite exit
+          try {
             setIsTyping(true);
+            
+            // Analyze sentiment of conversation so far
+            const sentiment = await aiService.analyzeSentiment(message);
+            
             setTimeout(() => {
               setIsTyping(false);
-              addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
+              const sentimentMessage = sentiment === 'negative' 
+                ? "I can sense this might be a challenging topic for you, and that's completely understandable."
+                : sentiment === 'positive'
+                ? "I appreciate how engaged you are with this discussion."
+                : "I understand you'd like to spend more time on this topic.";
+              
+              const exitMessage = `${sentimentMessage} Your valuable insights have been captured and will be shared with leadership to help improve our workplace environment. If you don't want to proceed with the remaining questions, please say "yes" to end our chat here. Otherwise, we can continue with the next question.`;
+              
+              addMessage("assistant", exitMessage);
               setWaitingForConfirmation(true);
-            }, 1500);
-          }, 1000);
-          
-        } catch (error) {
-          addMessage("assistant", "I understand. Thank you for sharing more about that with me.");
-          setTimeout(() => {
-            setIsTyping(true);
+              setWaitingForExitConfirmation(true);
+            }, 2000);
+            
+          } catch (error) {
+            setIsTyping(false);
+            addMessage("assistant", "I understand you'd like to focus on this area. Your insights have been captured and will be shared with leadership. If you don't want to proceed with further questions, please say 'yes' to end our chat. Otherwise, we can move to the next question.");
+            setWaitingForConfirmation(true);
+            setWaitingForExitConfirmation(true);
+          }
+        } else {
+          // First attempt - continue conversation normally
+          try {
+            const context = getConversationContext();
+            const currentMessages = [...messages, { 
+              id: `temp_${Date.now()}`, 
+              role: "user" as const, 
+              content: message, 
+              timestamp: new Date() 
+            }];
+            
+            const aiResponse = await generateResponse(currentMessages, context, questionPhase);
+            addMessage("assistant", sanitizeAssistantText(aiResponse.response));
+            
             setTimeout(() => {
-              setIsTyping(false);
-              addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
-              setWaitingForConfirmation(true);
-            }, 1500);
-          }, 1000);
+              setIsTyping(true);
+              setTimeout(() => {
+                setIsTyping(false);
+                addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
+                setWaitingForConfirmation(true);
+              }, 1500);
+            }, 1000);
+            
+          } catch (error) {
+            addMessage("assistant", "I understand. Thank you for sharing more about that with me.");
+            setTimeout(() => {
+              setIsTyping(true);
+              setTimeout(() => {
+                setIsTyping(false);
+                addMessage("assistant", "Is there anything else about this topic, or shall we move to the next question?");
+                setWaitingForConfirmation(true);
+              }, 1500);
+            }, 1000);
+          }
         }
       }
       return;

@@ -69,18 +69,43 @@ export class AIService {
     return fallbacks[questionPhase as keyof typeof fallbacks] || fallbacks.default;
   }
 
-  // Helper method to analyze sentiment from user responses
+  // Enhanced sentiment analysis with AI-powered analysis
   async analyzeSentiment(message: string): Promise<'positive' | 'neutral' | 'negative'> {
-    // Simple sentiment analysis based on keywords
-    const positiveWords = ['good', 'great', 'excellent', 'satisfied', 'happy', 'love', 'amazing', 'wonderful'];
-    const negativeWords = ['bad', 'terrible', 'awful', 'dissatisfied', 'unhappy', 'hate', 'horrible', 'frustrated'];
+    try {
+      // Use AI for more accurate sentiment analysis
+      const { data, error } = await supabase.functions.invoke('wellness-chat', {
+        body: {
+          messages: [
+            { role: 'system', content: 'Analyze the sentiment of the user message. Respond only with "positive", "negative", or "neutral".' },
+            { role: 'user', content: message }
+          ],
+          context: { sentiment_analysis: true },
+          questionPhase: 'sentiment'
+        }
+      });
+
+      if (!error && data?.response) {
+        const sentiment = data.response.toLowerCase().trim();
+        if (['positive', 'negative', 'neutral'].includes(sentiment)) {
+          return sentiment as 'positive' | 'neutral' | 'negative';
+        }
+      }
+    } catch (error) {
+      console.warn('AI sentiment analysis failed, falling back to keyword analysis');
+    }
+
+    // Fallback to keyword-based analysis
+    const positiveWords = ['good', 'great', 'excellent', 'satisfied', 'happy', 'love', 'amazing', 'wonderful', 'glad', 'pleased', 'content', 'fine', 'okay'];
+    const negativeWords = ['bad', 'terrible', 'awful', 'dissatisfied', 'unhappy', 'hate', 'horrible', 'frustrated', 'stressed', 'worried', 'concerned', 'difficult', 'problem', 'issue'];
+    const resistanceWords = ['no', 'not', 'dont', "don't", 'stop', 'enough', 'tired', 'skip', 'pass'];
     
     const lowerMessage = message.toLowerCase();
     const positiveCount = positiveWords.filter(word => lowerMessage.includes(word)).length;
     const negativeCount = negativeWords.filter(word => lowerMessage.includes(word)).length;
+    const resistanceCount = resistanceWords.filter(word => lowerMessage.includes(word)).length;
     
+    if (resistanceCount > 0 || negativeCount > positiveCount) return 'negative';
     if (positiveCount > negativeCount) return 'positive';
-    if (negativeCount > positiveCount) return 'negative';
     return 'neutral';
   }
 }
