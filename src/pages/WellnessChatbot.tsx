@@ -188,12 +188,7 @@ export const WellnessChatbot = () => {
       
       // After AI responds, determine next action based on satisfaction level
       if (questionPhase !== "question5") {
-        setTimeout(() => {
-          setIsTyping(true);
-          setTimeout(() => {
-            setIsTyping(false);
-
-            // Analyze satisfaction and whether AI already asked a question
+        // Analyze satisfaction and whether AI already asked a question
             const userResponse = response.trim().toLowerCase();
             const num = parseInt(response, 10);
             const isNumeric = !Number.isNaN(num);
@@ -249,8 +244,6 @@ export const WellnessChatbot = () => {
                 setWaitingForConfirmation(true);
               }
             }
-          }, 1500);
-        }, 1000);
       } else {
         // For question 5, ensure we wait for ANY AI follow-up (if any) before closing
         const aiText = aiResponse.response || '';
